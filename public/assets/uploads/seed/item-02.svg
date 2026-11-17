@@ -1,0 +1,10 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500" role="img" aria-label="Chunky cable-knit jumper (placeholder photo)">
+  <rect width="400" height="500" fill="#D9C7A7"/>
+  <rect x="12" y="12" width="376" height="476" fill="none" stroke="#2B211C" stroke-opacity="0.35" stroke-width="2"/>
+  <g font-family="Fraunces, Georgia, serif" fill="#2B211C" text-anchor="middle">
+  <text x="200" y="206" font-size="34" font-weight="600">Chunky</text>
+  <text x="200" y="250" font-size="34" font-weight="600">cable-knit</text>
+  <text x="200" y="294" font-size="34" font-weight="600">jumper</text>
+  </g>
+  <text x="200" y="440" font-family="DM Sans, Arial, sans-serif" font-size="20" fill="#2B211C" text-anchor="middle">Size L · beige</text>
+</svg>

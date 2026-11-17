@@ -59,7 +59,7 @@ A try-on request has its own status: `new` → `fetching` → `ready` → `close
 ### M5 — Buy-in from a walk-in seller
 *As staff, I want to register clothes bought from a walk-in seller, so they are in the archive the same day.*
 - One buy-in can contain several items.
-- Required per item: photo, title, category, size, condition, purchase price (what the shop pays), sale price.
+- Required per item: photo, title, category, size, colour (from the fixed list in Business rules), condition, purchase price (what the shop pays), sale price.
 - Payout type: cash or store credit. Store credit = cash amount × 1.2, calculated by the system.
 - A shelf code is suggested (next free spot) and can be changed.
 - New items get status `in_archive`.
@@ -76,7 +76,7 @@ A try-on request has its own status: `new` → `fetching` → `ready` → `close
 *As a manager, I want to see stock, sales, margin and try-on conversion, so I can decide what to buy and mark down.*
 - Numbers for today and this week: items in archive, items sold, revenue, average margin, try-on → purchase conversion.
 - Item funnel: requested → tried → bought.
-- Slow movers: items `in_archive` for more than 60 days.
+- Slow movers: items `in_archive` for more than 60 days, counted from the buy-in date.
 - Store credit given out this week.
 
 ### Staff login
@@ -90,9 +90,10 @@ A try-on request has its own status: `new` → `fetching` → `ready` → `close
 | Store-credit bonus | × 1.2 of the cash amount |
 | Max items per try-on request | 5 |
 | Fitting rooms | 3 |
-| Slow mover | `in_archive` for more than 60 days |
+| Slow mover | `in_archive` for more than 60 days, counted from the buy-in date (the clock does not restart when an item returns from a fitting room) |
+| Colours | black, white, grey, navy, blue, green, red, pink, beige, brown |
 | Margin | (sale price − purchase price) / sale price |
-| Conversion | items sold from a fitting room / items brought to a fitting room |
+| Conversion | items sold / items with an outcome (sold or returned); items still undecided in a fitting room are left out |
 
 ## Screens
 

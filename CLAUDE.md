@@ -27,6 +27,7 @@ sql/
   schema.sql       tables, keys, constraints
   seed.sql         realistic demo data
 tests/
+  db/              SQL tests of the database constraints
   unit/            PHPUnit tests of src/
   e2e/             Playwright tests of the critical flows
   MANUAL_CHECKLIST.md
@@ -38,6 +39,9 @@ docs/              data model diagram, screenshots
 - Reset database:
   - bash: `psql "$DATABASE_URL" -f sql/schema.sql -f sql/seed.sql`
   - PowerShell: `psql $env:DATABASE_URL -f sql/schema.sql -f sql/seed.sql`
+- Database constraint tests (on a freshly reset database; every test is rolled back):
+  - bash: `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f tests/db/rejections.sql`
+  - PowerShell: `psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -q -f tests/db/rejections.sql`
 - Unit tests: `vendor/bin/phpunit`
 - End-to-end tests: `npx playwright test`
 

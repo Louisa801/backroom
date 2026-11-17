@@ -1,0 +1,9 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500" role="img" aria-label="Ribbed tank top (placeholder photo)">
+  <rect width="400" height="500" fill="#F4F1EA"/>
+  <rect x="12" y="12" width="376" height="476" fill="none" stroke="#2B211C" stroke-opacity="0.35" stroke-width="2"/>
+  <g font-family="Fraunces, Georgia, serif" fill="#2B211C" text-anchor="middle">
+  <text x="200" y="228" font-size="34" font-weight="600">Ribbed tank</text>
+  <text x="200" y="272" font-size="34" font-weight="600">top</text>
+  </g>
+  <text x="200" y="440" font-family="DM Sans, Arial, sans-serif" font-size="20" fill="#2B211C" text-anchor="middle">Size XS · white</text>
+</svg>
