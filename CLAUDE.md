@@ -19,7 +19,9 @@ public/            web root: only files here are reachable
   manager/         dashboard (login required)
   assets/          css/, js/, uploads/ (item photos)
 src/               PHP logic, no HTML
+  bootstrap.php    loaded by every page/API file: error handling, includes
   db.php           PDO connection
+  helpers.php      e(), format_price(), json_response()
   auth.php         login, session, CSRF
   Items.php, Requests.php, Intake.php, Sales.php, Dashboard.php
 templates/         shared header/footer partials

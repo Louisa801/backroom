@@ -1,0 +1,291 @@
+/* Backroom: shared styles. Mobile first (375px), then wider screens. */
+
+:root {
+  /* Colours from the Assignment 1 deck */
+  --bg: #F5EFE4;          /* warm off-white */
+  --ink: #2B211C;         /* dark brown, 14.4:1 on --bg */
+  --ink-soft: #5C4A3F;    /* secondary text, 7.3:1 on --bg */
+  --accent: #A9472A;      /* terracotta, 7.4:1 on --bg; white on it 8.4:1 */
+  --accent-dark: #8A3820;
+  --surface: #FFFDF8;
+  --line: #D8CDBB;
+  --error-bg: #F8E1DA;
+
+  /* Spacing scale: 4, 8, 16, 24, 32, 48 */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 16px;
+  --s4: 24px;
+  --s5: 32px;
+  --s6: 48px;
+
+  --radius: 8px;
+  --tap: 44px;
+  --font-heading: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-text: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: 1rem; /* 16px */
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 var(--s2);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Layout ---------- */
+
+.site-header {
+  background: var(--ink);
+  padding: var(--s3);
+}
+
+.site-header__brand {
+  color: var(--bg);
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--s4) var(--s3) var(--s6);
+}
+
+.page__title {
+  font-size: 2rem;
+}
+
+.page__intro {
+  margin: 0 0 var(--s4);
+  color: var(--ink-soft);
+}
+
+/* ---------- Buttons and fields ---------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--tap);
+  padding: var(--s2) var(--s3);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+
+.button--secondary {
+  background: transparent;
+  color: var(--accent);
+}
+
+.button--secondary:hover {
+  background: var(--surface);
+  color: var(--accent-dark);
+}
+
+.field label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: var(--s1);
+}
+
+.field select,
+.field input {
+  width: 100%;
+  min-height: var(--tap);
+  padding: var(--s2) var(--s3);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+
+.field select:focus-visible,
+.field input:focus-visible {
+  border-color: var(--accent);
+}
+
+/* ---------- Archive filters ---------- */
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3);
+  margin-bottom: var(--s4);
+}
+
+.filters__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+.notice {
+  padding: var(--s3);
+  border-radius: var(--radius);
+  margin: 0 0 var(--s3);
+}
+
+.notice--error {
+  background: var(--error-bg);
+  border-left: 4px solid var(--accent);
+}
+
+.result-count {
+  margin: 0 0 var(--s3);
+  font-weight: 700;
+}
+
+/* ---------- Item cards ---------- */
+
+.cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--s3);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card__photo {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: var(--line);
+}
+
+.card__body {
+  padding: var(--s2) var(--s3) var(--s3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  flex: 1;
+}
+
+.card__title {
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+.card__meta {
+  margin: auto 0 0;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+
+.card__size {
+  color: var(--ink-soft);
+}
+
+.card__price {
+  font-weight: 700;
+}
+
+/* ---------- Empty state ---------- */
+
+.empty {
+  text-align: center;
+  padding: var(--s6) var(--s3);
+  background: var(--surface);
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+}
+
+.empty p {
+  margin: 0 0 var(--s4);
+  color: var(--ink-soft);
+}
+
+/* ---------- Wider screens ---------- */
+
+@media (min-width: 768px) {
+  .page {
+    padding: var(--s5) var(--s4) var(--s6);
+  }
+
+  .page__title {
+    font-size: 2.5rem;
+  }
+
+  .filters {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+    align-items: end;
+  }
+
+  .filters__actions {
+    grid-column: auto;
+  }
+
+  .cards {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--s4);
+  }
+}

@@ -16,14 +16,19 @@ This user comes from `sql/seed.sql`. It is for local development and the demo on
 
 Needs PHP 8.3 (with `pdo_pgsql`), PostgreSQL 17, Composer and Node.js.
 
-1. Create a database and set `DATABASE_URL`, for example
+1. Install PHP dependencies (PHPUnit): `composer install`
+2. Create a database and set `DATABASE_URL`, for example
    `postgresql://backroom:YOURPASSWORD@localhost:5432/backroom`.
-2. Reset the database (tables + demo data):
+3. Reset the database (tables + demo data):
    - PowerShell: `psql $env:DATABASE_URL -f sql/schema.sql -f sql/seed.sql`
    - bash: `psql "$DATABASE_URL" -f sql/schema.sql -f sql/seed.sql`
-3. Start the site: `php -S localhost:8000 -t public`
+4. Start the site: `php -S localhost:8000 -t public`
 
 ## Tests
+
+Unit tests (PHPUnit). The database tests use `DATABASE_URL` and roll back everything they insert:
+
+- `vendor/bin/phpunit`
 
 Database constraint tests check that the database refuses bad data (negative prices, unknown statuses, fitting room 4, and so on). Run them right after a reset; each test is rolled back, so the data is unchanged. Every line should say `PASS`; a failure stops the run with an error.
 
