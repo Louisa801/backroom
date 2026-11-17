@@ -7,6 +7,8 @@ Read `SPEC.md` before every task. It is the source of truth for what to build. I
 - PostgreSQL 17 through PDO.
 - HTML, CSS and vanilla JavaScript (`fetch` for live updates). No front-end framework, no build step.
 - Hosting: Render (Docker web service, `php:8.3-apache`) with a PostgreSQL 17 database (same version as local). Config comes from the `DATABASE_URL` environment variable.
+- Uploaded item photos are stored in the database (`photos` table) and served by `public/photo.php?id=`, because Render's free tier loses files on every restart. Only the seed placeholder SVGs are static files.
+- PHP extensions needed: `pdo_pgsql`, `gd` (JPEG, PNG, WebP), `exif`, `fileinfo`, `mbstring`. `php.ini`: `upload_max_filesize = 8M`, `post_max_size = 90M`, `memory_limit = 256M`. The Docker image must install and set the same.
 
 ## Folder structure
 ```
@@ -14,17 +16,19 @@ public/            web root: only files here are reachable
   index.php        customer: archive
   item.php         customer: item detail
   request.php      customer: request status
+  photo.php        serves an uploaded item photo from the database
   api/             JSON endpoints used by the JS
   staff/           staff screens (login required)
   manager/         dashboard (login required)
-  assets/          css/, js/, uploads/ (item photos)
+  assets/          css/, js/, uploads/seed/ (placeholder photos of the demo data)
 src/               PHP logic, no HTML
   bootstrap.php    loaded by every page/API file: error handling, includes
   db.php           PDO connection
   helpers.php      e(), format_price(), json_response()
   auth.php         login, session, CSRF
+  Photos.php       check, resize and store item photos
   Items.php, Requests.php, Intake.php, Sales.php, Dashboard.php
-templates/         shared header/footer partials
+templates/         shared header/footer and other partials
 sql/
   schema.sql       tables, keys, constraints
   seed.sql         realistic demo data

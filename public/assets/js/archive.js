@@ -27,7 +27,7 @@
   function renderCard(item) {
     const card = template.content.firstElementChild.cloneNode(true);
     const img = card.querySelector('.card__photo');
-    img.src = '/' + item.photo_path;
+    img.src = item.photo_url;
     img.alt = item.title;
     card.querySelector('.card__title').textContent = item.title;
     card.querySelector('.card__size').textContent = 'Size ' + item.size;

@@ -14,7 +14,9 @@ This user comes from `sql/seed.sql`. It is for local development and the demo on
 
 ## Run locally
 
-Needs PHP 8.3 (with `pdo_pgsql`), PostgreSQL 17, Composer and Node.js.
+Needs PHP 8.3, PostgreSQL 17, Composer and Node.js.
+
+PHP extensions: `pdo_pgsql`, `gd` (JPEG, PNG, WebP), `exif`, `fileinfo`, `mbstring`. In `php.ini`: `upload_max_filesize = 8M`, `post_max_size = 90M`, `memory_limit = 256M` (needed for buy-in photo uploads).
 
 1. Install PHP dependencies (PHPUnit): `composer install`
 2. Create a database and set `DATABASE_URL`, for example

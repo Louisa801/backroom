@@ -89,6 +89,8 @@ A try-on request has its own status: `new` → `fetching` → `ready` → `close
 |---|---|
 | Store-credit bonus | × 1.2 of the cash amount |
 | Max items per try-on request | 5 |
+| Items per buy-in | 1 to 10 |
+| Item photo | JPEG, PNG or WebP, up to 8 MB. On save it is resized to at most 1200px wide, stored as a JPEG (about 80% quality) in the database |
 | Fitting rooms | 3 |
 | Slow mover | `in_archive` for more than 60 days, counted from the buy-in date (the clock does not restart when an item returns from a fitting room) |
 | Colours | black, white, grey, navy, blue, green, red, pink, beige, brown |

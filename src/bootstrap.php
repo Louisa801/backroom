@@ -8,7 +8,10 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/Items.php';
+require_once __DIR__ . '/Photos.php';
+require_once __DIR__ . '/Intake.php';
 
 // Turn warnings and notices into exceptions so they reach the handler below.
 set_error_handler(static function (int $severity, string $message, string $file, int $line): bool {

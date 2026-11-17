@@ -127,9 +127,17 @@ final class ItemsArchiveTest extends TestCase
     {
         $rows = $this->items->filterArchive(['category' => $this->catCoats]);
 
-        self::assertSame(['id', 'title', 'size', 'colour', 'category', 'sale_price', 'photo_path'], array_keys($rows[0]));
+        self::assertSame(['id', 'title', 'size', 'colour', 'category', 'sale_price', 'photo_url'], array_keys($rows[0]));
         self::assertIsInt($rows[0]['id']);
         self::assertSame('60.00', $rows[0]['sale_price']);
+        self::assertSame('/assets/test.svg', $rows[0]['photo_url']);
+    }
+
+    public function testPhotoUrlPrefersUploadedPhoto(): void
+    {
+        self::assertSame('/photo.php?id=12', Items::photoUrl(12, null));
+        self::assertSame('/photo.php?id=12', Items::photoUrl('12', null));
+        self::assertSame('/assets/uploads/seed/item-01.svg', Items::photoUrl(null, 'assets/uploads/seed/item-01.svg'));
     }
 
     public function testCategoriesAreListed(): void

@@ -264,6 +264,236 @@ a {
   color: var(--ink-soft);
 }
 
+/* ---------- Staff header note ---------- */
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.site-header__note {
+  color: var(--bg);
+  font-weight: 700;
+  border: 2px solid var(--bg);
+  border-radius: var(--radius);
+  padding: var(--s1) var(--s2);
+}
+
+/* ---------- Form details ---------- */
+
+.field__hint {
+  margin: var(--s1) 0 0;
+  color: var(--ink-soft);
+  font-size: 1rem;
+}
+
+.field__error {
+  margin: var(--s1) 0 0;
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+
+.field--invalid select,
+.field--invalid input[type='text'],
+.field--invalid input[type='file'] {
+  border-color: var(--accent);
+}
+
+.field input[type='file'] {
+  padding: var(--s2);
+  background: var(--surface);
+}
+
+.button--large {
+  width: 100%;
+  min-height: 56px;
+  font-size: 1.125rem;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error-summary {
+  background: var(--error-bg);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius);
+  padding: var(--s3);
+  margin-bottom: var(--s4);
+}
+
+.error-summary__title {
+  font-family: var(--font-text);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.error-summary ul {
+  margin: 0;
+  padding-left: var(--s4);
+}
+
+.error-summary li + li {
+  margin-top: var(--s1);
+}
+
+.error-summary a {
+  color: var(--ink);
+}
+
+/* ---------- Buy-in form ---------- */
+
+.intake {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+
+.item-block,
+.payout {
+  margin: 0;
+  padding: var(--s3);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  min-width: 0;
+}
+
+.item-block__legend,
+.payout legend {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 0 var(--s2);
+}
+
+.item-block__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s3);
+  margin-bottom: var(--s3);
+}
+
+.photo-kept {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin-bottom: var(--s2);
+}
+
+.photo-kept img {
+  width: 64px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+}
+
+.photo-kept p {
+  margin: 0;
+}
+
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: var(--tap);
+  padding: var(--s2) var(--s3);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  cursor: pointer;
+  flex: 1 1 140px;
+}
+
+.radio input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent);
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.radio:has(input:checked) {
+  border-color: var(--accent);
+}
+
+.payout__total {
+  margin: var(--s3) 0 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+/* ---------- Buy-in saved ---------- */
+
+.success {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 6px solid #3F6B3C;
+  border-radius: var(--radius);
+  padding: var(--s4) var(--s3);
+}
+
+.success__payout {
+  font-size: 1.125rem;
+}
+
+.saved-items {
+  list-style: none;
+  margin: 0 0 var(--s4);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+
+.saved-items__item {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.saved-items__item img {
+  width: 48px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--s1);
+}
+
+.saved-items__text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.shelf-badge {
+  font-weight: 700;
+  font-size: 1.125rem;
+  background: var(--ink);
+  color: var(--bg);
+  border-radius: var(--radius);
+  padding: var(--s1) var(--s2);
+}
+
 /* ---------- Wider screens ---------- */
 
 @media (min-width: 768px) {
@@ -287,5 +517,20 @@ a {
   .cards {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: var(--s4);
+  }
+}
+
+@media (min-width: 600px) {
+  .item-block__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .field--wide {
+    grid-column: 1 / -1;
+  }
+
+  .button--large {
+    width: auto;
+    align-self: flex-start;
   }
 }

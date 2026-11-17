@@ -125,7 +125,23 @@ SELECT pg_temp.expect_rejected('16. duplicate staff email', $q$
 ROLLBACK;
 
 BEGIN;
-SELECT pg_temp.expect_accepted('17. reuse shelf code of a sold item (A-08)', $q$
+SELECT pg_temp.expect_rejected('17. item without a photo', $q$
+    INSERT INTO items (buy_in_id, category_id, title, size, colour, condition, purchase_price, sale_price, shelf_code)
+    VALUES (1, 1, 'Test', 'M', 'black', 'good', 5.00, 10.00, 'E-01') $q$, 'items_one_photo');
+ROLLBACK;
+
+BEGIN;
+SELECT pg_temp.expect_rejected('18. photo wider than 1200px', $q$
+    INSERT INTO photos (mime_type, data, width, height) VALUES ('image/jpeg', '\xffd8'::bytea, 1600, 900) $q$, 'photos_width_check');
+ROLLBACK;
+
+BEGIN;
+SELECT pg_temp.expect_rejected('19. photo that is not a JPEG', $q$
+    INSERT INTO photos (mime_type, data, width, height) VALUES ('image/png', '\x89504e47'::bytea, 100, 100) $q$, 'photos_mime_type_check');
+ROLLBACK;
+
+BEGIN;
+SELECT pg_temp.expect_accepted('20. reuse shelf code of a sold item (A-08)', $q$
     INSERT INTO items (buy_in_id, category_id, title, size, colour, condition, purchase_price, sale_price, photo_path, shelf_code)
     VALUES (1, 1, 'Test', 'M', 'black', 'good', 5.00, 10.00, 'x.jpg', 'A-08') $q$);
 ROLLBACK;

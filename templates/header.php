@@ -14,5 +14,8 @@
 <body>
 <header class="site-header">
     <a class="site-header__brand" href="/">Backroom</a>
+    <?php if (!empty($headerNote)): ?>
+        <span class="site-header__note"><?= e($headerNote) ?></span>
+    <?php endif; ?>
 </header>
 <main class="page">

@@ -61,11 +61,11 @@ final class Items
      * Items a customer may see: status in_archive only, filtered, newest buy-in first.
      *
      * @param array{size?: string, category?: int, colour?: string, max_price?: string} $filters from normaliseFilters()
-     * @return list<array{id: int, title: string, size: string, colour: string, category: string, sale_price: string, photo_path: string}>
+     * @return list<array{id: int, title: string, size: string, colour: string, category: string, sale_price: string, photo_url: string}>
      */
     public function filterArchive(array $filters): array
     {
-        $sql = "SELECT i.id, i.title, i.size, i.colour, c.name AS category, i.sale_price, i.photo_path
+        $sql = "SELECT i.id, i.title, i.size, i.colour, c.name AS category, i.sale_price, i.photo_id, i.photo_path
                 FROM items i
                 JOIN categories c ON c.id = i.category_id
                 JOIN buy_ins b ON b.id = i.buy_in_id
@@ -94,10 +94,24 @@ final class Items
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
 
-        return array_map(static function (array $row): array {
-            $row['id'] = (int) $row['id'];
-            return $row;
-        }, $stmt->fetchAll(PDO::FETCH_ASSOC));
+        return array_map(static fn (array $row): array => [
+            'id'         => (int) $row['id'],
+            'title'      => $row['title'],
+            'size'       => $row['size'],
+            'colour'     => $row['colour'],
+            'category'   => $row['category'],
+            'sale_price' => $row['sale_price'],
+            'photo_url'  => self::photoUrl($row['photo_id'], $row['photo_path']),
+        ], $stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    /** URL of an item photo: uploaded photos come from the database, seed photos are static files. */
+    public static function photoUrl(int|string|null $photoId, ?string $photoPath): string
+    {
+        if ($photoId !== null && $photoId !== '') {
+            return '/photo.php?id=' . (int) $photoId;
+        }
+        return '/' . ltrim((string) $photoPath, '/');
     }
 
     /** @return list<array{id: int, name: string}> */
