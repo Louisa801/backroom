@@ -4,9 +4,9 @@ Read `SPEC.md` before every task. It is the source of truth for what to build. I
 
 ## Stack (fixed)
 - PHP 8.3, plain PHP: no framework.
-- PostgreSQL 16 through PDO.
+- PostgreSQL 17 through PDO.
 - HTML, CSS and vanilla JavaScript (`fetch` for live updates). No front-end framework, no build step.
-- Hosting: Render (Docker web service, `php:8.3-apache`) with a PostgreSQL database. Config comes from the `DATABASE_URL` environment variable.
+- Hosting: Render (Docker web service, `php:8.3-apache`) with a PostgreSQL 17 database (same version as local). Config comes from the `DATABASE_URL` environment variable.
 
 ## Folder structure
 ```
@@ -35,7 +35,9 @@ docs/              data model diagram, screenshots
 
 ## Commands
 - Run locally: `php -S localhost:8000 -t public`
-- Reset database: `psql "$DATABASE_URL" -f sql/schema.sql -f sql/seed.sql`
+- Reset database:
+  - bash: `psql "$DATABASE_URL" -f sql/schema.sql -f sql/seed.sql`
+  - PowerShell: `psql $env:DATABASE_URL -f sql/schema.sql -f sql/seed.sql`
 - Unit tests: `vendor/bin/phpunit`
 - End-to-end tests: `npx playwright test`
 
