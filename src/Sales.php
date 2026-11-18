@@ -26,7 +26,7 @@ final class Sales
                 ->execute(['item' => $itemId, 'request' => $requestId, 'price' => $item['sale_price']]);
             $this->pdo->prepare("UPDATE items SET status = 'sold' WHERE id = :id AND status = 'in_fitting_room'")
                 ->execute(['id' => $itemId]);
-            $this->pdo->prepare("UPDATE request_items SET outcome = 'sold' WHERE request_id = :request AND item_id = :item AND outcome IS NULL")
+            $this->pdo->prepare("UPDATE request_items SET outcome = 'sold', outcome_at = now() WHERE request_id = :request AND item_id = :item AND outcome IS NULL")
                 ->execute(['request' => $requestId, 'item' => $itemId]);
 
             return [

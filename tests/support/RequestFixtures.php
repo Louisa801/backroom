@@ -66,7 +66,8 @@ trait RequestFixtures
         };
         $outcome = $status === 'closed' ? 'returned' : null;
         foreach ($itemIds as $itemId) {
-            $this->pdo->prepare('INSERT INTO request_items (request_id, item_id, outcome) VALUES (?, ?, ?)')->execute([$requestId, $itemId, $outcome]);
+            $this->pdo->prepare('INSERT INTO request_items (request_id, item_id, outcome, outcome_at) VALUES (?, ?, ?, ' . ($outcome === null ? 'NULL' : 'now()') . ')')
+                ->execute([$requestId, $itemId, $outcome]);
             $this->pdo->prepare('UPDATE items SET status = ? WHERE id = ?')->execute([$itemStatus, $itemId]);
         }
         return $requestId;

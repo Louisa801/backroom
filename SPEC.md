@@ -76,7 +76,7 @@ A try-on request has its own status: `new` → `fetching` → `ready` → `close
 
 ### M7 — Manager dashboard
 *As a manager, I want to see stock, sales, margin and try-on conversion, so I can decide what to buy and mark down.*
-- Numbers for today and this week: items in archive, items sold, revenue, average margin, try-on → purchase conversion.
+- Numbers for today and this week: items in archive, items sold, revenue, gross margin, try-on → purchase conversion.
 - Item funnel: requested → tried → bought.
 - Slow movers: items `in_archive` for more than 60 days, counted from the buy-in date.
 - Store credit given out this week.
@@ -96,10 +96,13 @@ A try-on request has its own status: `new` → `fetching` → `ready` → `close
 | Items per buy-in | 1 to 10 |
 | Item photo | JPEG, PNG or WebP, up to 8 MB. On save it is resized to at most 1200px wide, stored as a JPEG (about 80% quality) in the database |
 | Fitting rooms | 3 |
-| Slow mover | `in_archive` for more than 60 days, counted from the buy-in date (the clock does not restart when an item returns from a fitting room) |
+| Slow mover | `in_archive` for more than 60 days, counted from the buy-in date (the clock does not restart when an item returns from a fitting room). Days are calendar days in Porto: 61 days or more |
 | Colours | black, white, grey, navy, blue, green, red, pink, beige, brown |
-| Margin | (sale price − purchase price) / sale price |
-| Conversion | items sold / items with an outcome (sold or returned); items still undecided in a fitting room are left out |
+| Gross margin | (sum of sale prices − sum of purchase prices) / sum of sale prices, over the items sold in the period: "of every euro taken in, how much is profit" |
+| Conversion | items sold / items with an outcome (sold or returned) in the period; items still undecided in a fitting room are left out |
+| Shop time | Porto (Europe/Lisbon), also on servers that run in UTC |
+| Today | 00:00 to now, Porto time |
+| This week | Monday 00:00 to now, Porto time |
 
 ## Screens
 

@@ -19,10 +19,13 @@ BEGIN;
 -- week and "today" never slips into yesterday, whatever time the reset runs.
 CREATE FUNCTION pg_temp.days_ago(d INTEGER) RETURNS TIMESTAMPTZ
     LANGUAGE sql AS $$ SELECT now() - make_interval(days => d) $$;
+-- "This week" (from Monday) and "today" in shop time, Porto (Europe/Lisbon), like the dashboard.
 CREATE FUNCTION pg_temp.this_week(hours_ago INTEGER) RETURNS TIMESTAMPTZ
-    LANGUAGE sql AS $$ SELECT GREATEST(date_trunc('week', now()), now() - make_interval(hours => hours_ago)) $$;
+    LANGUAGE sql AS $$ SELECT GREATEST(date_trunc('week', now() AT TIME ZONE 'Europe/Lisbon') AT TIME ZONE 'Europe/Lisbon',
+                                       now() - make_interval(hours => hours_ago)) $$;
 CREATE FUNCTION pg_temp.today(minutes_ago INTEGER) RETURNS TIMESTAMPTZ
-    LANGUAGE sql AS $$ SELECT GREATEST(date_trunc('day', now()), now() - make_interval(mins => minutes_ago)) $$;
+    LANGUAGE sql AS $$ SELECT GREATEST(date_trunc('day', now() AT TIME ZONE 'Europe/Lisbon') AT TIME ZONE 'Europe/Lisbon',
+                                       now() - make_interval(mins => minutes_ago)) $$;
 
 -- ---------------------------------------------------------------------------
 -- Staff (password: backroom-demo, hashed with PHP password_hash)
@@ -122,7 +125,10 @@ INSERT INTO tryon_requests (id, fitting_room, status, created_at, ready_at, clos
 (6, 2, 'fetching', now() - interval '12 minutes', NULL, NULL),
 (7, 1, 'new',      now() - interval '4 minutes',  NULL, NULL);
 
-INSERT INTO request_items (request_id, item_id, outcome) VALUES
+-- outcome_at: closed requests got their outcomes when they closed.
+INSERT INTO request_items (request_id, item_id, outcome, outcome_at)
+SELECT v.request_id, v.item_id, v.outcome, CASE WHEN v.outcome IS NULL THEN NULL ELSE r.closed_at END
+FROM (VALUES
 -- request 1: 2 of 4 bought
 (1,  8, 'sold'), (1,  9, 'returned'), (1, 15, 'sold'), (1, 22, 'returned'),
 -- request 2: 2 of 5 bought
@@ -135,7 +141,9 @@ INSERT INTO request_items (request_id, item_id, outcome) VALUES
 (5, 14, NULL), (5, 19, NULL), (5, 29, NULL),
 -- request 6 (fetching) and 7 (new)
 (6, 26, NULL),
-(7, 12, NULL), (7, 21, NULL);
+(7, 12, NULL), (7, 21, NULL)
+) AS v (request_id, item_id, outcome)
+JOIN tryon_requests r ON r.id = v.request_id;
 
 -- Sales: one per sold request item, at the moment the request closed, at the sale price.
 INSERT INTO sales (item_id, request_id, sold_at, price)

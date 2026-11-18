@@ -19,6 +19,16 @@ final class HelpersTest extends TestCase
         self::assertSame('42', e(42));
     }
 
+    public function testFormatsSharesAsWholePercentages(): void
+    {
+        self::assertSame('–', format_percent(null));
+        self::assertSame('50%', format_percent(0.5));
+        self::assertSame('33%', format_percent(1 / 3));
+        self::assertSame('44%', format_percent(7 / 16));
+        self::assertSame('0%', format_percent(0.0));
+        self::assertSame('100%', format_percent(1.0));
+    }
+
     public function testFormatsPricesInEuros(): void
     {
         self::assertSame('€28.00', format_price('28'));

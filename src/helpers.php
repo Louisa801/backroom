@@ -13,6 +13,15 @@ function format_price(string|int|float $amount): string
     return '€' . number_format((float) $amount, 2, '.', ',');
 }
 
+/** A share as a whole percentage, e.g. 0.4375 -> "44%"; "–" when there is nothing to show. */
+function format_percent(?float $share): string
+{
+    if ($share === null) {
+        return '–';
+    }
+    return round($share * 100) . '%';
+}
+
 /** Send a JSON response and stop. */
 function json_response(mixed $data, int $status = 200): never
 {

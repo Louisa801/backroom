@@ -62,3 +62,19 @@ Checked 2026-11-18. Page: `/staff/`. Compare with `docs/mockups/3-staff.png` (de
 | ✓ | Double tap, or two browser windows tapping the same button: the second tap says "Nothing changed: …" and nothing is sold twice or skipped. |
 | ✓ | The staff menu links "Queue & rooms" and "Buy-in". |
 | ✓ | At 375px: one column, buttons easy to tap, "Sold" and "Back to archive" side by side, nothing scrolls sideways. On a tablet in landscape: two columns. |
+
+## M7: Manager dashboard
+
+Checked 2026-11-18. Page: `/manager/`. Compare with `docs/mockups/4-dashboard.png` (deviations are listed in `docs/UI_BACKLOG.md`).
+
+| ✓ | Check |
+|---|---|
+| ✓ | "Today" and "This week" switch the figures; the date range line shows the right period in Porto time (the week starts on Monday). |
+| ✓ | The five tiles (In the archive now, Sold, Revenue, Gross margin, Try-on → buy) each have a label and a short explanation a manager understands without help. |
+| ✓ | After a fresh reset, this week shows 7 sold, €204.00, gross margin 68%, try-on → buy 44% (7 of 16) and €74.40 store credit. |
+| ✓ | Selling an item on the staff screen raises Sold, Revenue and Try-on → buy after a reload. |
+| ✓ | With no sales or no fitting-room decisions in the period (e.g. today early in the morning), margin and conversion show "–" with a plain note, and nothing breaks. |
+| ✓ | The funnel shows Requested, Tried and Bought as bars with their numbers. |
+| ✓ | Slow movers list items more than 60 days in the archive, oldest first, with days, shelf code and price; no "Mark down" buttons. |
+| ✓ | The footer shows the store credit given out in the period. |
+| ✓ | At 375px: tiles in two columns, funnel and slow movers stacked, nothing scrolls sideways. On a laptop: five tiles in a row, funnel and slow movers side by side. |

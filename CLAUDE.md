@@ -62,6 +62,7 @@ docs/              data model diagram, screenshots
 - Passwords stored with `password_hash`, checked with `password_verify`.
 - Status changes go through one function per transition, inside a transaction, and check the current status first (so two tablets can't request the same item).
 - Money is stored as `NUMERIC(8,2)` in euros.
+- Shop time is Porto (`Europe/Lisbon`). Periods such as today and this week are computed in `src/Dashboard.php` from a given "now" and passed to SQL as exact timestamps, never from the server's or the database's time zone (Render runs in UTC). Tests pass "now" in.
 - Validate on the server; client-side checks are only for convenience.
 - Show errors to the user in plain language; never show PHP errors or stack traces.
 

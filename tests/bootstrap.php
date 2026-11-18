@@ -10,4 +10,5 @@ require_once __DIR__ . '/../src/Photos.php';
 require_once __DIR__ . '/../src/Intake.php';
 require_once __DIR__ . '/../src/Requests.php';
 require_once __DIR__ . '/../src/Sales.php';
+require_once __DIR__ . '/../src/Dashboard.php';
 require_once __DIR__ . '/support/RequestFixtures.php';

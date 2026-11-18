@@ -94,7 +94,9 @@ CREATE TABLE request_items (
     request_id INTEGER NOT NULL REFERENCES tryon_requests(id),
     item_id    INTEGER NOT NULL REFERENCES items(id),
     outcome    TEXT CHECK (outcome IN ('sold', 'returned')),
-    PRIMARY KEY (request_id, item_id)
+    outcome_at TIMESTAMPTZ,  -- when "Sold" or "Back to archive" was pressed (M7 conversion)
+    PRIMARY KEY (request_id, item_id),
+    CONSTRAINT request_items_outcome_at_matches CHECK ((outcome IS NULL) = (outcome_at IS NULL))
 );
 
 CREATE INDEX request_items_item ON request_items (item_id);

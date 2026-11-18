@@ -19,3 +19,14 @@ Deviations in the build:
 2. **The queue groups items per request.** The mockup shows one card per item. One tap moves a whole request on (SPEC M4), so each card is one request with all its items and one button.
 3. **Shelf codes look like `A-08`, not `A-03-12`.** One letter for the rack and two digits for the spot, as decided for the database and in SPEC (M5).
 4. **Action buttons.** The static mockup shows no buttons. The build adds "Start fetching" and "Ready in fitting room N" in the queue, and "Sold" and "Back to archive" in the rooms.
+
+## M7: Manager dashboard (mockup `4-dashboard.png`)
+
+Deviations in the build:
+
+1. **No "Mark down" buttons.** Slow movers are shown as a plain list (title, size, days, shelf, price). Suggested markdown prices are out of scope in SPEC, and there is no markdown flow yet.
+2. **No "Viewed" bar in the funnel.** The tablet doesn't record which items customers look at, so the funnel starts at "Requested" (then "Tried", "Bought").
+3. **A fifth tile, Revenue,** because SPEC M7 asks for revenue. "Avg. margin" is called **"Gross margin"**: the period total, (sum of sale prices − sum of purchase prices) ÷ sum of sale prices (SPEC Business rules).
+4. **A different footer.** The mockup says "Bought in this week: 112 items · 71% of sellers chose store credit". SPEC M7 asks for the store credit given out, so the footer shows that amount.
+5. **No "Sample data" label,** because the dashboard shows real data.
+6. **A "Today | This week" toggle and a date range line,** which the mockup (this week only) doesn't show. Every tile has a short explanation under its number.

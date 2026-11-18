@@ -277,7 +277,7 @@ final class Requests
             $stmt = $this->pdo->prepare("UPDATE items SET status = 'in_archive' WHERE id = :id AND status = 'in_fitting_room'");
             $stmt->execute(['id' => $itemId]);
             $stmt = $this->pdo->prepare(
-                "UPDATE request_items SET outcome = 'returned' WHERE request_id = :request AND item_id = :item AND outcome IS NULL"
+                "UPDATE request_items SET outcome = 'returned', outcome_at = now() WHERE request_id = :request AND item_id = :item AND outcome IS NULL"
             );
             $stmt->execute(['request' => $requestId, 'item' => $itemId]);
 
