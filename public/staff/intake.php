@@ -99,6 +99,7 @@ foreach ($errors['rows'] ?? [] as $i => $rowErrors) {
 
 $pageTitle = 'Buy-in';
 $headerNote = 'Staff';
+$staffNav = 'intake';
 $scripts = ['intake.js'];
 require __DIR__ . '/../../templates/header.php';
 ?>

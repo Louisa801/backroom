@@ -39,6 +39,8 @@ tests/
   e2e/             Playwright tests of the critical flows
   MANUAL_CHECKLIST.md
 docs/              data model diagram, screenshots
+  mockups/         Assignment 1 mockups: the UI reference for each screen
+  UI_BACKLOG.md    deviations from the mockups and UI ideas for later, with reasons
 ```
 
 ## Commands
@@ -69,6 +71,7 @@ docs/              data model diagram, screenshots
 - Text at least 16px, contrast at least 4.5:1 (WCAG AA).
 - Every form field has a label. Every image has alt text.
 - Consistent spacing scale: 4, 8, 16, 24, 32, 48px.
+- Use `docs/mockups/` as the reference when building a screen (1-browse, 2-tryon, 3-staff, 4-dashboard). Note every deviation, with its reason, in `docs/UI_BACKLOG.md`.
 
 ## Way of working
 1. Build one user story at a time, in this order: database → M1 → M5 → M2/M3 → M4 → M6 → M7 → login.

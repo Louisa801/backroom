@@ -14,6 +14,12 @@
 <body<?= !empty($bodyClass) ? ' class="' . e($bodyClass) . '"' : '' ?>>
 <header class="site-header">
     <a class="site-header__brand" href="/">Backroom</a>
+    <?php if (!empty($staffNav)): ?>
+        <nav class="staff-nav" aria-label="Staff">
+            <a href="/staff/"<?= $staffNav === 'board' ? ' aria-current="page"' : '' ?>>Queue &amp; rooms</a>
+            <a href="/staff/intake.php"<?= $staffNav === 'intake' ? ' aria-current="page"' : '' ?>>Buy-in</a>
+        </nav>
+    <?php endif; ?>
     <?php if (!empty($headerNote)): ?>
         <span class="site-header__note"><?= e($headerNote) ?></span>
     <?php endif; ?>

@@ -31,8 +31,7 @@ Checked 2026-11-18. Page: `/staff/intake.php`.
 
 ## M2/M3: Request a try-on and follow its status
 
-Checked 2026-11-18. Pages: `/` (archive) and `/request.php?id=`. To change a request's status before M4 exists:
-`psql $env:DATABASE_URL -c "UPDATE tryon_requests SET status='fetching' WHERE id=<id>"` (for `ready`, also set `ready_at = now()`).
+Checked 2026-11-18. Pages: `/` (archive) and `/request.php?id=`. To move a request on, use the staff screen `/staff/` (M4).
 
 | ✓ | Check |
 |---|---|
@@ -46,3 +45,20 @@ Checked 2026-11-18. Pages: `/` (archive) and `/request.php?id=`. To change a req
 | ✓ | "Back to the archive" works. After `ready` or `closed` a countdown appears and the page returns to the archive after 60 seconds. |
 | ✓ | An unsent list is cleared after 10 minutes without interaction (to check quickly, set `IDLE_MS` in `tryon.js` to 1 minute temporarily). |
 | ✓ | At 375px: the bar doesn't cover the last cards, the three room buttons fit on one row, and nothing scrolls sideways. |
+
+## M4/M6: Fetch queue and fitting rooms
+
+Checked 2026-11-18. Page: `/staff/`. Compare with `docs/mockups/3-staff.png` (deviations are listed in `docs/UI_BACKLOG.md`).
+
+| ✓ | Check |
+|---|---|
+| ✓ | The fetch queue shows new and fetching requests, oldest first, each item as "Title · Size" and "Shelf A-08 → Fitting room N", with the "New request" or "Fetching" pill. |
+| ✓ | A request sent from the tablet appears in the queue within 10 seconds without reloading. |
+| ✓ | "Start fetching", then "Ready in fitting room N", moves the request on one step per tap; the customer's status page follows within 5 seconds. |
+| ✓ | When a request is ready, its items appear in the right fitting room with "Sold" and "Back to archive". |
+| ✓ | "Sold" shows "Sold: Title (€price)" and the item shows "Sold". |
+| ✓ | "Back to archive" shows the shelf code to put it back on, and the item is visible on the tablet again within 10 seconds. |
+| ✓ | When every item of a request has an outcome, the request is closed, the room shows "Free", and the customer's page shows "finished". |
+| ✓ | Double tap, or two browser windows tapping the same button: the second tap says "Nothing changed: …" and nothing is sold twice or skipped. |
+| ✓ | The staff menu links "Queue & rooms" and "Buy-in". |
+| ✓ | At 375px: one column, buttons easy to tap, "Sold" and "Back to archive" side by side, nothing scrolls sideways. On a tablet in landscape: two columns. |

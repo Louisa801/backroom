@@ -1,7 +1,15 @@
 <?php
 declare(strict_types=1);
 
-/** M2/M3: try-on requests from the customer tablet. */
+/**
+ * A status change that is not allowed from the current status (double tap, two staff
+ * members at once, a skipped step). Nothing was changed; the message can be shown as is.
+ */
+final class TransitionRefusedException extends RuntimeException
+{
+}
+
+/** M2/M3: try-on requests from the customer tablet. M4/M6: staff moving them on. */
 final class Requests
 {
     public const MAX_ITEMS = 5;
@@ -170,6 +178,267 @@ final class Requests
             'ready'    => "Ready in fitting room $room. You can go there now.",
             'closed'   => 'This request is finished. Thank you!',
             default    => 'Status unknown.',
+        };
+    }
+
+    // ------------------------------------------------------------------
+    // M4: fetch queue transitions (new -> fetching -> ready)
+    // ------------------------------------------------------------------
+
+    /**
+     * The one-tap button: move the request one step on from the status the screen showed.
+     * A double tap or a second staff member finds the request already moved and is refused.
+     *
+     * @return array{status: string, fitting_room: int} the new status
+     */
+    public function advance(int $requestId, string $from): array
+    {
+        return match ($from) {
+            'new'      => $this->startFetching($requestId),
+            'fetching' => $this->markReady($requestId),
+            default    => throw new TransitionRefusedException('Nothing changed: there is no next step from here.'),
+        };
+    }
+
+    /** Transition new -> fetching. @return array{status: string, fitting_room: int} */
+    public function startFetching(int $requestId): array
+    {
+        return transaction($this->pdo, function () use ($requestId): array {
+            $request = $this->lockRequest($requestId);
+            if ($request['status'] !== 'new') {
+                throw new TransitionRefusedException(self::alreadyMessage($request));
+            }
+            $this->pdo->prepare("UPDATE tryon_requests SET status = 'fetching' WHERE id = :id AND status = 'new'")
+                ->execute(['id' => $requestId]);
+            return ['status' => 'fetching', 'fitting_room' => (int) $request['fitting_room']];
+        });
+    }
+
+    /**
+     * Transition fetching -> ready: the items are in the fitting room.
+     * Every item must still be 'requested'; otherwise nothing changes.
+     *
+     * @return array{status: string, fitting_room: int}
+     */
+    public function markReady(int $requestId): array
+    {
+        return transaction($this->pdo, function () use ($requestId): array {
+            $request = $this->lockRequest($requestId);
+            if ($request['status'] !== 'fetching') {
+                throw new TransitionRefusedException(
+                    $request['status'] === 'new'
+                        ? "Nothing changed: request #$requestId has to be fetched first."
+                        : self::alreadyMessage($request)
+                );
+            }
+
+            $stmt = $this->pdo->prepare(
+                'SELECT i.id, i.status FROM request_items ri JOIN items i ON i.id = ri.item_id
+                 WHERE ri.request_id = :id ORDER BY i.id FOR UPDATE OF i'
+            );
+            $stmt->execute(['id' => $requestId]);
+            $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($items as $item) {
+                if ($item['status'] !== 'requested') {
+                    throw new TransitionRefusedException("Nothing changed: an item of request #$requestId is no longer waiting to be fetched.");
+                }
+            }
+
+            $stmt = $this->pdo->prepare(
+                "UPDATE items SET status = 'in_fitting_room'
+                 WHERE id IN (SELECT item_id FROM request_items WHERE request_id = :id) AND status = 'requested'"
+            );
+            $stmt->execute(['id' => $requestId]);
+            if ($stmt->rowCount() !== count($items)) {
+                throw new RuntimeException('An item changed while it was locked.');
+            }
+
+            $this->pdo->prepare("UPDATE tryon_requests SET status = 'ready', ready_at = now() WHERE id = :id AND status = 'fetching'")
+                ->execute(['id' => $requestId]);
+            return ['status' => 'ready', 'fitting_room' => (int) $request['fitting_room']];
+        });
+    }
+
+    // ------------------------------------------------------------------
+    // M6: fitting room outcomes (Sold is in Sales.php)
+    // ------------------------------------------------------------------
+
+    /**
+     * Transition in_fitting_room -> in_archive ("Back to archive"), outcome 'returned'.
+     * A sold item is refused, so it can never come back to the archive.
+     *
+     * @return array{title: string, shelf_code: string, fitting_room: int, closed: bool}
+     */
+    public function returnItem(int $requestId, int $itemId): array
+    {
+        return transaction($this->pdo, function () use ($requestId, $itemId): array {
+            $item = $this->lockFittingRoomItem($requestId, $itemId);
+
+            $stmt = $this->pdo->prepare("UPDATE items SET status = 'in_archive' WHERE id = :id AND status = 'in_fitting_room'");
+            $stmt->execute(['id' => $itemId]);
+            $stmt = $this->pdo->prepare(
+                "UPDATE request_items SET outcome = 'returned' WHERE request_id = :request AND item_id = :item AND outcome IS NULL"
+            );
+            $stmt->execute(['request' => $requestId, 'item' => $itemId]);
+
+            return [
+                'title'        => $item['title'],
+                'shelf_code'   => $item['shelf_code'],
+                'fitting_room' => (int) $item['fitting_room'],
+                'closed'       => $this->closeIfDone($requestId),
+            ];
+        });
+    }
+
+    /**
+     * Lock a request item that is about to get an outcome and check it may get one:
+     * the request is ready, the item has no outcome yet and is in the fitting room.
+     * Must be called inside a transaction (Sales::sell and returnItem do).
+     *
+     * @return array{title: string, shelf_code: string, sale_price: string, fitting_room: int}
+     */
+    public function lockFittingRoomItem(int $requestId, int $itemId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT r.status AS request_status, r.fitting_room, ri.outcome, i.status AS item_status,
+                    i.title, i.shelf_code, i.sale_price
+             FROM request_items ri
+             JOIN tryon_requests r ON r.id = ri.request_id
+             JOIN items i ON i.id = ri.item_id
+             WHERE ri.request_id = :request AND ri.item_id = :item
+             FOR UPDATE'
+        );
+        $stmt->execute(['request' => $requestId, 'item' => $itemId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row === false) {
+            throw new TransitionRefusedException("Nothing changed: this item is not part of request #$requestId.");
+        }
+        if ($row['outcome'] === 'sold') {
+            throw new TransitionRefusedException("Nothing changed: {$row['title']} is already sold.");
+        }
+        if ($row['outcome'] === 'returned') {
+            throw new TransitionRefusedException("Nothing changed: {$row['title']} is already back in the archive.");
+        }
+        if ($row['request_status'] !== 'ready') {
+            throw new TransitionRefusedException("Nothing changed: request #$requestId is not in a fitting room yet.");
+        }
+        if ($row['item_status'] !== 'in_fitting_room') {
+            throw new TransitionRefusedException("Nothing changed: {$row['title']} is not in the fitting room.");
+        }
+        return $row;
+    }
+
+    /**
+     * Transition ready -> closed once every item has an outcome. Call inside the
+     * transaction that set the last outcome. Returns true if the request was closed.
+     */
+    public function closeIfDone(int $requestId): bool
+    {
+        $stmt = $this->pdo->prepare('SELECT count(*) FROM request_items WHERE request_id = :id AND outcome IS NULL');
+        $stmt->execute(['id' => $requestId]);
+        if ((int) $stmt->fetchColumn() > 0) {
+            return false;
+        }
+        $stmt = $this->pdo->prepare("UPDATE tryon_requests SET status = 'closed', closed_at = now() WHERE id = :id AND status = 'ready'");
+        $stmt->execute(['id' => $requestId]);
+        return $stmt->rowCount() === 1;
+    }
+
+    // ------------------------------------------------------------------
+    // Staff screen data
+    // ------------------------------------------------------------------
+
+    /**
+     * M4: open requests (new and fetching), oldest first.
+     *
+     * @return list<array{id: int, status: string, fitting_room: int, waiting_minutes: int, items: list<array>}>
+     */
+    public function queue(): array
+    {
+        $rows = $this->pdo->query(
+            "SELECT id, status, fitting_room, floor(extract(epoch FROM now() - created_at) / 60)::int AS waiting_minutes
+             FROM tryon_requests WHERE status IN ('new', 'fetching') ORDER BY created_at, id"
+        )->fetchAll(PDO::FETCH_ASSOC);
+
+        return $this->withItems($rows);
+    }
+
+    /**
+     * M6: ready requests per fitting room (1-3), each item with its outcome so far.
+     *
+     * @return array<int, list<array{id: int, status: string, fitting_room: int, items: list<array>}>>
+     */
+    public function fittingRooms(): array
+    {
+        $rows = $this->pdo->query(
+            "SELECT id, status, fitting_room FROM tryon_requests WHERE status = 'ready' ORDER BY ready_at, id"
+        )->fetchAll(PDO::FETCH_ASSOC);
+
+        $rooms = array_fill_keys(self::FITTING_ROOMS, []);
+        foreach ($this->withItems($rows) as $request) {
+            $rooms[$request['fitting_room']][] = $request;
+        }
+        return $rooms;
+    }
+
+    /** Add the items (sorted by shelf code, the order staff walk the shelves) to each request. */
+    private function withItems(array $requests): array
+    {
+        if ($requests === []) {
+            return [];
+        }
+        $ids = '{' . implode(',', array_map(static fn (array $r): int => (int) $r['id'], $requests)) . '}';
+        $stmt = $this->pdo->prepare(
+            'SELECT ri.request_id, i.id, i.title, i.size, i.shelf_code, i.sale_price, i.photo_id, i.photo_path, ri.outcome
+             FROM request_items ri JOIN items i ON i.id = ri.item_id
+             WHERE ri.request_id = ANY(CAST(:ids AS int[]))
+             ORDER BY i.shelf_code, i.id'
+        );
+        $stmt->execute(['ids' => $ids]);
+
+        $items = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
+            $items[(int) $r['request_id']][] = [
+                'id'         => (int) $r['id'],
+                'title'      => $r['title'],
+                'size'       => $r['size'],
+                'shelf_code' => $r['shelf_code'],
+                'sale_price' => $r['sale_price'],
+                'photo_url'  => Items::photoUrl($r['photo_id'], $r['photo_path']),
+                'outcome'    => $r['outcome'],
+            ];
+        }
+
+        return array_map(static fn (array $r): array => [
+            'id'           => (int) $r['id'],
+            'status'       => $r['status'],
+            'fitting_room' => (int) $r['fitting_room'],
+        ] + (isset($r['waiting_minutes']) ? ['waiting_minutes' => (int) $r['waiting_minutes']] : [])
+          + ['items' => $items[(int) $r['id']] ?? []], $requests);
+    }
+
+    /** @return array{id: int, status: string, fitting_room: int} the request, locked */
+    private function lockRequest(int $requestId): array
+    {
+        $stmt = $this->pdo->prepare('SELECT id, status, fitting_room FROM tryon_requests WHERE id = :id FOR UPDATE');
+        $stmt->execute(['id' => $requestId]);
+        $request = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($request === false) {
+            throw new TransitionRefusedException("Nothing changed: request #$requestId doesn't exist.");
+        }
+        return $request;
+    }
+
+    private static function alreadyMessage(array $request): string
+    {
+        $id = $request['id'];
+        return match ($request['status']) {
+            'new'      => "Nothing changed: request #$id is still waiting to be fetched.",
+            'fetching' => "Nothing changed: request #$id is already being fetched.",
+            'ready'    => "Nothing changed: request #$id is already in fitting room {$request['fitting_room']}.",
+            'closed'   => "Nothing changed: request #$id is already closed.",
+            default    => "Nothing changed: request #$id can't move on from here.",
         };
     }
 

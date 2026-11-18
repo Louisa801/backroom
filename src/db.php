@@ -28,6 +28,38 @@ function database_config(string $url): array
     ];
 }
 
+/**
+ * Run $work inside a transaction: commit if it returns, roll back if it throws.
+ * If a transaction is already open (e.g. in tests), a savepoint is used instead.
+ */
+function transaction(PDO $pdo, callable $work): mixed
+{
+    static $savepoint = 0;
+
+    if ($pdo->inTransaction()) {
+        $name = 'sp_' . ++$savepoint;
+        $pdo->exec("SAVEPOINT $name");
+        try {
+            $result = $work();
+            $pdo->exec("RELEASE SAVEPOINT $name");
+            return $result;
+        } catch (Throwable $e) {
+            $pdo->exec("ROLLBACK TO SAVEPOINT $name");
+            throw $e;
+        }
+    }
+
+    $pdo->beginTransaction();
+    try {
+        $result = $work();
+        $pdo->commit();
+        return $result;
+    } catch (Throwable $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+}
+
 /** One shared PDO connection per request. */
 function db(): PDO
 {
