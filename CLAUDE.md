@@ -35,6 +35,7 @@ sql/
 tests/
   db/              SQL tests of the database constraints
   unit/            PHPUnit tests of src/
+  support/         helper scripts used by the tests
   e2e/             Playwright tests of the critical flows
   MANUAL_CHECKLIST.md
 docs/              data model diagram, screenshots

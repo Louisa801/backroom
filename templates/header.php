@@ -4,14 +4,14 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title><?= e($pageTitle) ?> · Backroom</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Fraunces:opsz,wght@9..144,600&display=swap">
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body>
+<body<?= !empty($bodyClass) ? ' class="' . e($bodyClass) . '"' : '' ?>>
 <header class="site-header">
     <a class="site-header__brand" href="/">Backroom</a>
     <?php if (!empty($headerNote)): ?>

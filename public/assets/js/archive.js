@@ -1,6 +1,9 @@
 // M1: update the archive results without reloading the page.
+// M2: refresh quietly every 10 seconds, so items requested on another tablet disappear.
 (function () {
   'use strict';
+
+  const REFRESH_MS = 10000;
 
   const form = document.getElementById('filters');
   const cards = document.getElementById('cards');
@@ -15,6 +18,7 @@
 
   const priceFormat = new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' });
   let controller = null;
+  let shownIds = Array.from(cards.querySelectorAll('[data-tryon]')).map((b) => b.dataset.id).join(',');
 
   function queryString() {
     const params = new URLSearchParams();
@@ -32,14 +36,24 @@
     card.querySelector('.card__title').textContent = item.title;
     card.querySelector('.card__size').textContent = 'Size ' + item.size;
     card.querySelector('.card__price').textContent = priceFormat.format(Number(item.sale_price));
+    const button = card.querySelector('[data-tryon]');
+    button.dataset.id = String(item.id);
+    button.dataset.title = item.title;
+    button.dataset.size = item.size;
+    button.dataset.photo = item.photo_url;
     return card;
   }
 
-  function render(data) {
+  function render(data, quiet) {
+    const ids = data.items.map((item) => item.id).join(',');
+    // A quiet refresh only redraws when the results changed, so focus and scroll stay put.
+    if (quiet && ids === shownIds) return;
+    shownIds = ids;
     cards.replaceChildren(...data.items.map(renderCard));
     cards.hidden = data.count === 0;
     empty.hidden = data.count !== 0;
     count.textContent = data.count === 1 ? '1 item' : data.count + ' items';
+    document.dispatchEvent(new CustomEvent('archive:rendered'));
   }
 
   function showError(message) {
@@ -47,34 +61,39 @@
     error.hidden = false;
   }
 
-  async function update() {
+  async function update(options) {
+    const quiet = Boolean(options && options.quiet);
+    if (quiet && controller) return; // never interrupt a search the customer started
+
     const qs = queryString();
-    history.replaceState(null, '', qs ? '?' + qs : location.pathname);
+    if (!quiet) history.replaceState(null, '', qs ? '?' + qs : location.pathname);
 
     if (controller) controller.abort();
-    controller = new AbortController();
-    form.setAttribute('aria-busy', 'true');
+    const current = new AbortController();
+    controller = current;
+    if (!quiet) form.setAttribute('aria-busy', 'true');
 
     try {
       const response = await fetch('/api/items.php' + (qs ? '?' + qs : ''), {
-        signal: controller.signal,
+        signal: current.signal,
         headers: { Accept: 'application/json' },
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        showError(data.error || "Couldn't load items. Try again.");
+        if (!quiet) showError(data.error || "Couldn't load items. Try again.");
         return;
       }
       error.hidden = true;
-      render(data);
+      render(data, quiet);
     } catch (err) {
-      if (err.name !== 'AbortError') showError("Couldn't load items. Check the connection and try again.");
+      if (err.name !== 'AbortError' && !quiet) showError("Couldn't load items. Check the connection and try again.");
     } finally {
-      form.removeAttribute('aria-busy');
+      if (controller === current) controller = null;
+      if (!quiet) form.removeAttribute('aria-busy');
     }
   }
 
-  form.addEventListener('change', update);
+  form.addEventListener('change', () => update());
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     update();
@@ -89,4 +108,11 @@
       form.querySelector('select').focus();
     });
   });
+
+  setInterval(() => {
+    if (!document.hidden) update({ quiet: true });
+  }, REFRESH_MS);
+
+  // After a try-on request (or a refusal), show the archive as it is now.
+  document.addEventListener('tryon:changed-archive', () => update({ quiet: true }));
 })();

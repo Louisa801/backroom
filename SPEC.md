@@ -44,11 +44,13 @@ A try-on request has its own status: `new` → `fetching` → `ready` → `close
 - The customer adds 1 to 5 items to a try-on list and picks a fitting room (1–3).
 - Sending the request sets every item to `requested`, so it disappears from other tablets at once.
 - If an item was taken by someone else in the meantime, the customer sees which one and the rest of the request still goes through.
+- The tablet is shared: an unsent try-on list is cleared after 10 minutes without interaction, so the next customer doesn't find someone else's list.
 
 ### M3 — Follow the request status
 *As a customer, I want to see the status of my request, so I know when to go to the fitting room.*
 - Shows `new` → `fetching` → `ready` and the fitting-room number.
 - Updates automatically (polling every few seconds), no manual refresh.
+- A clear "Back to the archive" button. The page returns to the archive by itself 60 seconds after the request is `ready` or `closed`, so the tablet is free for the next customer.
 
 ### M4 — Fetch queue
 *As staff, I want a fetch queue with shelf locations, so I can bring items to the fitting room quickly.*
@@ -89,6 +91,8 @@ A try-on request has its own status: `new` → `fetching` → `ready` → `close
 |---|---|
 | Store-credit bonus | × 1.2 of the cash amount |
 | Max items per try-on request | 5 |
+| Unsent try-on list | Cleared after 10 minutes without interaction |
+| Request status page | Back to the archive 60 seconds after `ready` or `closed` |
 | Items per buy-in | 1 to 10 |
 | Item photo | JPEG, PNG or WebP, up to 8 MB. On save it is resized to at most 1200px wide, stored as a JPEG (about 80% quality) in the database |
 | Fitting rooms | 3 |
