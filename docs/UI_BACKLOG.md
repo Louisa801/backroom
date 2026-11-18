@@ -26,7 +26,21 @@ Deviations in the build:
 
 1. **No "Mark down" buttons.** Slow movers are shown as a plain list (title, size, days, shelf, price). Suggested markdown prices are out of scope in SPEC, and there is no markdown flow yet.
 2. **No "Viewed" bar in the funnel.** The tablet doesn't record which items customers look at, so the funnel starts at "Requested" (then "Tried", "Bought").
-3. **A fifth tile, Revenue,** because SPEC M7 asks for revenue. "Avg. margin" is called **"Gross margin"**: the period total, (sum of sale prices − sum of purchase prices) ÷ sum of sale prices (SPEC Business rules).
-4. **A different footer.** The mockup says "Bought in this week: 112 items · 71% of sellers chose store credit". SPEC M7 asks for the store credit given out, so the footer shows that amount.
-5. **No "Sample data" label,** because the dashboard shows real data.
-6. **A "Today | This week" toggle and a date range line,** which the mockup (this week only) doesn't show. Every tile has a short explanation under its number.
+3. **"Avg. margin" is called "Gross margin":** the period total, (sum of sale prices − sum of purchase prices) ÷ sum of sale prices (SPEC Business rules).
+4. **No "Sample data" label,** because the dashboard shows real data.
+5. **A "Today | This week" toggle and a date range line,** which the mockup (this week only) doesn't show.
+
+### Redesign after the hand check (2026-11-18)
+
+The first build (commit `7760b8e`) had five tiles, a separate "Try-on → buy" tile, a store-credit band at the bottom and a funnel of three bars. Louisa found it too crowded and not intuitive, and its numbers could contradict each other. The funnel counted each step by when it happened: requested this week, tried this week, decided this week. Those are three different groups of items, so "requested − tried" didn't have to match anything, and could even be negative across a week boundary.
+
+What changed and why:
+
+1. **Three main tiles: Sold, Revenue (in whole euros) and Gross margin,** each with one short explanation. The mockup has four tiles. Fewer numbers at the top make the important ones what you see first.
+2. **"In the archive" and store credit moved to one quiet line under the tiles,** and the store-credit band at the bottom is gone. They're useful facts, but not headline numbers.
+3. **The "Try-on → buy" tile is merged into the funnel.** The buy rate only makes sense next to the numbers it comes from.
+4. **The funnel shows where every requested item is now.** It follows one group, the items requested in the period: on their way, still in a fitting room (undecided), bought, returned. A step line ("Requested 22 → Tried 19 (86%) → Bought 7 (44% of decided)"), one stacked bar and a table with a total make the numbers add up visibly. The buy rate (bought ÷ decided) is explained in one line. This needed one logic change in `src/Dashboard.php`, recorded in SPEC.md.
+5. **Slow movers as a compact table** (Item, Size, Shelf, Days, Price), easier to scan than a list.
+6. **More white space, fewer boxes:** only the three main tiles have a background.
+
+Note: "Sold" (by sale date) and "Bought" in the funnel (items requested in the period) can differ at the start of a week. For example, an item requested on Sunday and bought on Monday counts in Monday's Sold but in last week's funnel. The funnel's heading says which items it covers.

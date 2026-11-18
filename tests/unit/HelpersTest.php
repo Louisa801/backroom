@@ -29,6 +29,15 @@ final class HelpersTest extends TestCase
         self::assertSame('100%', format_percent(1.0));
     }
 
+    public function testFormatsWholeEuros(): void
+    {
+        self::assertSame('€204', format_whole_euros('204.00'));
+        self::assertSame('€205', format_whole_euros('204.50'));
+        self::assertSame('€204', format_whole_euros('204.49'));
+        self::assertSame('€0', format_whole_euros('0.00'));
+        self::assertSame('€1,250', format_whole_euros('1250.00'));
+    }
+
     public function testFormatsPricesInEuros(): void
     {
         self::assertSame('€28.00', format_price('28'));

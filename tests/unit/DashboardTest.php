@@ -71,10 +71,14 @@ final class DashboardTest extends TestCase
         return (int) $stmt->fetchColumn();
     }
 
-    private function request(string|DateTimeImmutable $created, string|DateTimeImmutable|null $ready = null, string $status = 'new'): int
-    {
-        $stmt = $this->pdo->prepare('INSERT INTO tryon_requests (fitting_room, status, created_at, ready_at) VALUES (1, ?, ?, ?) RETURNING id');
-        $stmt->execute([$status, self::at($created), $ready === null ? null : self::at($ready)]);
+    private function request(
+        string|DateTimeImmutable $created,
+        string|DateTimeImmutable|null $ready = null,
+        string $status = 'new',
+        string|DateTimeImmutable|null $closed = null,
+    ): int {
+        $stmt = $this->pdo->prepare('INSERT INTO tryon_requests (fitting_room, status, created_at, ready_at, closed_at) VALUES (1, ?, ?, ?, ?) RETURNING id');
+        $stmt->execute([$status, self::at($created), $ready === null ? null : self::at($ready), $closed === null ? null : self::at($closed)]);
         return (int) $stmt->fetchColumn();
     }
 
@@ -240,11 +244,14 @@ final class DashboardTest extends TestCase
         // Gross margin: (40 + 20 - 10 - 15) / (40 + 20) = 35 / 60.
         self::assertEqualsWithDelta(35 / 60, $week['gross_margin'], 1e-9);
         self::assertSame('58%', format_percent($week['gross_margin']));
-        // Conversion: coat and shirt sold, scarf returned; the hat is undecided.
-        self::assertSame(2, $week['outcomes_sold']);
-        self::assertSame(3, $week['outcomes_total']);
-        self::assertEqualsWithDelta(2 / 3, $week['conversion'], 1e-9);
-        self::assertSame(['requested' => 5, 'tried' => 4, 'bought' => 2], $week['funnel']);
+        // Funnel: the 5 items requested this week. Jeans on their way, hat undecided in the
+        // fitting room, coat and shirt bought, scarf returned.
+        self::assertSame(
+            ['requested' => 5, 'on_way' => 1, 'tried' => 4, 'in_room' => 1, 'decided' => 3, 'bought' => 2, 'returned' => 1],
+            $week['funnel']
+        );
+        self::assertEqualsWithDelta(2 / 3, $week['conversion'], 1e-9, 'Buy rate: 2 bought of 3 decided.');
+        self::assertEqualsWithDelta(4 / 5, $week['tried_share'], 1e-9);
         self::assertSame('36.00', $week['store_credit'], 'Store credit this week only, cash not included.');
     }
 
@@ -258,9 +265,14 @@ final class DashboardTest extends TestCase
         self::assertSame(1, $today['sold']);
         self::assertSame('20.00', $today['revenue']);
         self::assertEqualsWithDelta(0.25, $today['gross_margin'], 1e-9);
-        self::assertSame(1, $today['outcomes_sold']);
-        self::assertSame(2, $today['outcomes_total']);
-        self::assertSame(['requested' => 1, 'tried' => 0, 'bought' => 1], $today['funnel']);
+        // Only the jeans were requested today, and they're still on their way. The shirt was
+        // sold today but requested on Tuesday, so it counts in Sold, not in today's funnel.
+        self::assertSame(
+            ['requested' => 1, 'on_way' => 1, 'tried' => 0, 'in_room' => 0, 'decided' => 0, 'bought' => 0, 'returned' => 0],
+            $today['funnel']
+        );
+        self::assertNull($today['conversion'], 'Nothing requested today has been decided yet.');
+        self::assertSame(0.0, $today['tried_share']);
         self::assertSame('6.00', $today['store_credit']);
     }
 
@@ -279,6 +291,59 @@ final class DashboardTest extends TestCase
         self::assertSame('33%', format_percent($today['conversion']));
     }
 
+    public function testFunnelAlwaysAddsUp(): void
+    {
+        $this->weekOfFixtures();
+        // Extra: a request still being fetched and one fully decided, both this week.
+        $old = $this->buyIn('2031-01-01 10:00');
+        $fetching = $this->request('2031-03-11 12:00', null, 'fetching');
+        $this->inRequest($fetching, $this->item($old, 'Being fetched 1', 'requested'));
+        $this->inRequest($fetching, $this->item($old, 'Being fetched 2', 'requested'));
+        $done = $this->request('2031-03-10 08:00', '2031-03-10 08:30', 'closed', '2031-03-10 09:00');
+        $this->inRequest($done, $this->item($old, 'Returned Monday'), 'returned', '2031-03-10 08:50');
+
+        foreach (['today', 'week'] as $period) {
+            $f = $this->dashboard->summary($period, self::porto('2031-03-12 15:00'))['funnel'];
+            self::assertSame($f['requested'], $f['on_way'] + $f['in_room'] + $f['bought'] + $f['returned'], "$period: every requested item is in one place");
+            self::assertSame($f['tried'], $f['requested'] - $f['on_way'], "$period: tried = requested - on their way");
+            self::assertSame($f['decided'], $f['tried'] - $f['in_room'], "$period: decided = tried - still in a fitting room");
+            self::assertSame($f['decided'], $f['bought'] + $f['returned']);
+        }
+        $week = $this->dashboard->summary('week', self::porto('2031-03-12 15:00'))['funnel'];
+        self::assertSame(['requested' => 8, 'on_way' => 3, 'tried' => 5, 'in_room' => 1, 'decided' => 4, 'bought' => 2, 'returned' => 2], $week);
+    }
+
+    public function testARequestFromLastWeekStaysInLastWeeksFunnel(): void
+    {
+        // Requested on Sunday 23:50, tried and bought on Monday morning.
+        $item = $this->item($this->buyIn('2031-01-01 10:00'), 'Sunday request', 'sold', '10.00', '30.00');
+        $request = $this->request('2031-03-09 23:50', '2031-03-10 00:20', 'closed', '2031-03-10 00:40');
+        $this->inRequest($request, $item, 'sold', '2031-03-10 00:40');
+        $this->pdo->prepare('INSERT INTO sales (item_id, request_id, sold_at, price) VALUES (?, ?, ?, ?)')
+            ->execute([$item, $request, self::at('2031-03-10 00:40'), '30.00']);
+
+        $thisWeek = $this->dashboard->summary('week', self::porto('2031-03-12 15:00'));
+        $lastWeek = $this->dashboard->summary('week', self::porto('2031-03-09 23:59'));
+
+        self::assertSame(1, $thisWeek['sold'], 'Sold counts by sale date: Monday.');
+        self::assertSame(0, $thisWeek['funnel']['requested'], 'The funnel counts by request date: last week.');
+        self::assertNull($thisWeek['conversion']);
+        self::assertSame(1, $lastWeek['funnel']['requested'], 'Seen from Sunday night, it is on its way.');
+        self::assertSame(1, $lastWeek['funnel']['bought'], 'Its place is where it is now: bought.');
+    }
+
+    public function testTriedButNothingDecidedGivesNoBuyRate(): void
+    {
+        $request = $this->request('2031-03-12 09:00', '2031-03-12 09:30', 'ready');
+        $this->inRequest($request, $this->item($this->buyIn('2031-01-01 10:00'), 'Undecided', 'in_fitting_room'));
+
+        $today = $this->dashboard->summary('today', self::porto('2031-03-12 15:00'));
+
+        self::assertSame(1, $today['funnel']['in_room']);
+        self::assertNull($today['conversion']);
+        self::assertSame('–', format_percent($today['conversion']));
+    }
+
     // ---------------- empty ----------------
 
     public function testEmptyShopGivesZerosAndDashesNotErrors(): void
@@ -292,7 +357,8 @@ final class DashboardTest extends TestCase
             self::assertNull($summary['gross_margin']);
             self::assertNull($summary['conversion']);
             self::assertSame('–', format_percent($summary['gross_margin']));
-            self::assertSame(['requested' => 0, 'tried' => 0, 'bought' => 0], $summary['funnel']);
+            self::assertSame(['requested' => 0, 'on_way' => 0, 'tried' => 0, 'in_room' => 0, 'decided' => 0, 'bought' => 0, 'returned' => 0], $summary['funnel']);
+            self::assertNull($summary['tried_share']);
             self::assertSame('0.00', $summary['store_credit']);
         }
         self::assertSame([], $this->dashboard->slowMovers(self::porto('2031-03-12 15:00')));

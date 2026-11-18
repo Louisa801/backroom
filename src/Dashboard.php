@@ -42,10 +42,14 @@ final class Dashboard
     /**
      * Every figure for one period.
      *
+     * Sold, revenue and gross margin count sales by sale date. The funnel and the buy rate
+     * follow the items requested in the period to where they are now.
+     *
      * @return array{
      *   period: array, in_archive: int, sold: int, revenue: string, gross_margin: ?float,
-     *   conversion: ?float, outcomes_sold: int, outcomes_total: int,
-     *   funnel: array{requested: int, tried: int, bought: int}, store_credit: string
+     *   conversion: ?float, tried_share: ?float,
+     *   funnel: array{requested: int, on_way: int, tried: int, in_room: int, decided: int, bought: int, returned: int},
+     *   store_credit: string
      * }
      */
     public function summary(string $periodName, DateTimeImmutable $now): array
@@ -62,18 +66,15 @@ final class Dashboard
             $range
         );
 
-        $outcomes = $this->row(
-            "SELECT count(*) FILTER (WHERE outcome = 'sold') AS sold, count(*) AS total
-             FROM request_items
-             WHERE outcome_at BETWEEN CAST(:start AS timestamptz) AND CAST(:end AS timestamptz)",
-            $range
-        );
-
-        $funnel = $this->row(
-            'WITH p AS (SELECT CAST(:start AS timestamptz) AS s, CAST(:end AS timestamptz) AS e)
-             SELECT count(*) FILTER (WHERE r.created_at BETWEEN p.s AND p.e) AS requested,
-                    count(*) FILTER (WHERE r.ready_at   BETWEEN p.s AND p.e) AS tried
-             FROM request_items ri JOIN tryon_requests r ON r.id = ri.request_id, p',
+        // Funnel: the items requested in the period, each counted once by where it is now,
+        // so the steps always add up (requested = on_way + in_room + bought + returned).
+        $where = $this->row(
+            "SELECT count(*) FILTER (WHERE r.status IN ('new', 'fetching'))                  AS on_way,
+                    count(*) FILTER (WHERE r.status IN ('ready', 'closed') AND ri.outcome IS NULL) AS in_room,
+                    count(*) FILTER (WHERE ri.outcome = 'sold')                               AS bought,
+                    count(*) FILTER (WHERE ri.outcome = 'returned')                           AS returned
+             FROM request_items ri JOIN tryon_requests r ON r.id = ri.request_id
+             WHERE r.created_at BETWEEN CAST(:start AS timestamptz) AND CAST(:end AS timestamptz)",
             $range
         );
 
@@ -88,23 +89,34 @@ final class Dashboard
         $inArchive = (int) $this->pdo->query("SELECT count(*) FROM items WHERE status = 'in_archive'")->fetchColumn();
 
         $revenue = (float) $sales['revenue'];
-        $sold = (int) $sales['sold'];
-        $outcomesTotal = (int) $outcomes['total'];
-        $outcomesSold = (int) $outcomes['sold'];
+        $onWay = (int) $where['on_way'];
+        $inRoom = (int) $where['in_room'];
+        $bought = (int) $where['bought'];
+        $returned = (int) $where['returned'];
+        $decided = $bought + $returned;
+        $tried = $inRoom + $decided;
+        $requested = $onWay + $tried;
 
         return [
-            'period'         => $period,
-            'in_archive'     => $inArchive,
-            'sold'           => $sold,
-            'revenue'        => (string) $sales['revenue'],
+            'period'       => $period,
+            'in_archive'   => $inArchive,
+            'sold'         => (int) $sales['sold'],
+            'revenue'      => (string) $sales['revenue'],
             // Of every euro taken in, how much is profit: (Σ sale − Σ purchase) / Σ sale.
-            'gross_margin'   => $revenue > 0 ? ($revenue - (float) $sales['cost']) / $revenue : null,
-            // Items sold / items that got an outcome (sold or returned) in the period.
-            'conversion'     => $outcomesTotal > 0 ? (float) $outcomesSold / $outcomesTotal : null,
-            'outcomes_sold'  => $outcomesSold,
-            'outcomes_total' => $outcomesTotal,
-            'funnel'         => ['requested' => (int) $funnel['requested'], 'tried' => (int) $funnel['tried'], 'bought' => $sold],
-            'store_credit'   => (string) $credit['total'],
+            'gross_margin' => $revenue > 0 ? ($revenue - (float) $sales['cost']) / $revenue : null,
+            // Buy rate: of the items requested in the period, bought / decided (bought or returned).
+            'conversion'   => $decided > 0 ? (float) $bought / $decided : null,
+            'tried_share'  => $requested > 0 ? (float) $tried / $requested : null,
+            'funnel'       => [
+                'requested' => $requested,
+                'on_way'    => $onWay,
+                'tried'     => $tried,
+                'in_room'   => $inRoom,
+                'decided'   => $decided,
+                'bought'    => $bought,
+                'returned'  => $returned,
+            ],
+            'store_credit' => (string) $credit['total'],
         ];
     }
 

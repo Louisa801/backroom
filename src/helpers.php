@@ -13,6 +13,12 @@ function format_price(string|int|float $amount): string
     return '€' . number_format((float) $amount, 2, '.', ',');
 }
 
+/** A euro amount rounded to whole euros, e.g. "204.50" -> "€205" (for headline figures). */
+function format_whole_euros(string|int|float $amount): string
+{
+    return '€' . number_format(round((float) $amount), 0, '.', ',');
+}
+
 /** A share as a whole percentage, e.g. 0.4375 -> "44%"; "–" when there is nothing to show. */
 function format_percent(?float $share): string
 {
