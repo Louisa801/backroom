@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // PHP drops the whole form when it is bigger than post_max_size.
         $formError = 'The photos together were too large to send at once, so nothing was saved. Please use fewer or smaller photos.';
     } elseif (!csrf_verify($_POST['csrf_token'] ?? null)) {
+        http_response_code(403);  // refused: the form was not sent with this session's token
         $formError = 'This form had expired, so nothing was saved. Please check the details, add the photos again and save.';
         $rows = Intake::rowsFromRequest($_POST, []);
     } else {

@@ -26,14 +26,21 @@ BEGIN
     RAISE EXCEPTION 'FAIL  %: was accepted, expected % to refuse it', label, expected;
 END $$;
 
--- PASS only if the statement is accepted.
+-- PASS only if the statement is accepted and changes at least one row.
 CREATE FUNCTION pg_temp.expect_accepted(label TEXT, stmt TEXT) RETURNS TEXT
 LANGUAGE plpgsql AS $$
+DECLARE n BIGINT;
 BEGIN
-    EXECUTE stmt;
+    BEGIN
+        EXECUTE stmt;
+        GET DIAGNOSTICS n = ROW_COUNT;
+    EXCEPTION WHEN OTHERS THEN
+        RAISE EXCEPTION 'FAIL  %: refused (%)', label, SQLERRM;
+    END;
+    IF n = 0 THEN
+        RAISE EXCEPTION 'FAIL  %: accepted, but no row was changed', label;
+    END IF;
     RETURN 'PASS  ' || label;
-EXCEPTION WHEN OTHERS THEN
-    RAISE EXCEPTION 'FAIL  %: refused (%)', label, SQLERRM;
 END $$;
 
 BEGIN;
@@ -141,9 +148,32 @@ SELECT pg_temp.expect_rejected('19. photo that is not a JPEG', $q$
 ROLLBACK;
 
 BEGIN;
-SELECT pg_temp.expect_accepted('20. reuse shelf code of a sold item (A-08)', $q$
+-- Self-contained: makes its own staff user, category, buy-in and sold item on a shelf
+-- code that no unsold item uses, so it passes whatever data is in the database.
+WITH staff AS (
+    INSERT INTO staff_users (email, password_hash, name)
+    VALUES ('rejections-test@backroom.test', 'x', 'Rejections test') RETURNING id
+), buy_in AS (
+    INSERT INTO buy_ins (staff_id, payout_type, cash_amount, payout_amount)
+    SELECT id, 'cash', 5.00, 5.00 FROM staff RETURNING id
+), category AS (
+    INSERT INTO categories (name) VALUES ('Rejections test category') RETURNING id
+), free_code AS (
+    SELECT code
+    FROM (SELECT chr(65 + rack) || '-' || lpad(spot::text, 2, '0') AS code, rack, spot
+          FROM generate_series(0, 25) AS rack, generate_series(1, 99) AS spot) AS all_codes
+    WHERE code NOT IN (SELECT shelf_code FROM items WHERE status <> 'sold')
+    ORDER BY rack DESC, spot DESC
+    LIMIT 1
+)
+INSERT INTO items (buy_in_id, category_id, title, size, colour, condition, purchase_price, sale_price, photo_path, shelf_code, status)
+SELECT buy_in.id, category.id, 'Rejections test: sold item', 'M', 'black', 'good', 5.00, 10.00, 'x.jpg', free_code.code, 'sold'
+FROM buy_in, category, free_code;
+
+SELECT pg_temp.expect_accepted('20. reuse the shelf code of a sold item', $q$
     INSERT INTO items (buy_in_id, category_id, title, size, colour, condition, purchase_price, sale_price, photo_path, shelf_code)
-    VALUES (1, 1, 'Test', 'M', 'black', 'good', 5.00, 10.00, 'x.jpg', 'A-08') $q$);
+    SELECT buy_in_id, category_id, 'Rejections test: new item', 'M', 'black', 'good', 5.00, 10.00, 'x.jpg', shelf_code
+    FROM items WHERE title = 'Rejections test: sold item' $q$);
 ROLLBACK;
 
 SELECT 'All constraint tests passed.';

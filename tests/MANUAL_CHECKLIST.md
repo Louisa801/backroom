@@ -16,7 +16,7 @@ Checked 2026-11-17.
 
 ## M5: Buy-in from a walk-in seller
 
-Checked 2026-11-17. Page: `/staff/intake.php`.
+Checked 2026-11-18. Page: `/staff/intake.php`.
 
 | ✓ | Check |
 |---|---|
