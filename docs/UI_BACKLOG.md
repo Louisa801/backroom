@@ -39,7 +39,7 @@ What changed and why:
 1. **Three main tiles: Sold, Revenue (in whole euros) and Gross margin,** each with one short explanation. The mockup has four tiles. Fewer numbers at the top make the important ones what you see first.
 2. **"In the archive" and store credit moved to one quiet line under the tiles,** and the store-credit band at the bottom is gone. They're useful facts, but not headline numbers.
 3. **The "Try-on → buy" tile is merged into the funnel.** The buy rate only makes sense next to the numbers it comes from.
-4. **The funnel shows where every requested item is now.** It follows one group, the items requested in the period: on their way, still in a fitting room (undecided), bought, returned. A step line ("Requested 22 → Tried 19 (86%) → Bought 7 (44% of decided)"), one stacked bar and a table with a total make the numbers add up visibly. The buy rate (bought ÷ decided) is explained in one line. This needed one logic change in `src/Dashboard.php`, recorded in SPEC.md.
+4. **The funnel shows where every requested item is now.** It follows one group, the items requested in the period: on their way, still in a fitting room (undecided), bought, returned. A step line ("Requested 22 → Decided 16 (73%) → Bought 7 (44%)": decided ÷ requested, then bought ÷ decided, the buy rate), one stacked bar and a table with a total make the numbers add up visibly. The buy rate (bought ÷ decided) is explained in one line. This needed one logic change in `src/Dashboard.php`, recorded in SPEC.md.
 5. **Slow movers as a compact table** (Item, Size, Shelf, Days, Price), easier to scan than a list.
 6. **More white space, fewer boxes:** only the three main tiles have a background.
 

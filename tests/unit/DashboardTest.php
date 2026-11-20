@@ -251,7 +251,10 @@ final class DashboardTest extends TestCase
             $week['funnel']
         );
         self::assertEqualsWithDelta(2 / 3, $week['conversion'], 1e-9, 'Buy rate: 2 bought of 3 decided.');
-        self::assertEqualsWithDelta(4 / 5, $week['tried_share'], 1e-9);
+        // Step line: Requested 5 -> Decided 3 (60%, decided / requested) -> Bought 2 (67%, bought / decided).
+        self::assertEqualsWithDelta(3 / 5, $week['decided_share'], 1e-9);
+        self::assertSame('60%', format_percent($week['decided_share']));
+        self::assertSame('67%', format_percent($week['conversion']));
         self::assertSame('36.00', $week['store_credit'], 'Store credit this week only, cash not included.');
     }
 
@@ -272,7 +275,7 @@ final class DashboardTest extends TestCase
             $today['funnel']
         );
         self::assertNull($today['conversion'], 'Nothing requested today has been decided yet.');
-        self::assertSame(0.0, $today['tried_share']);
+        self::assertSame(0.0, $today['decided_share'], '1 requested, 0 decided.');
         self::assertSame('6.00', $today['store_credit']);
     }
 
@@ -358,7 +361,7 @@ final class DashboardTest extends TestCase
             self::assertNull($summary['conversion']);
             self::assertSame('–', format_percent($summary['gross_margin']));
             self::assertSame(['requested' => 0, 'on_way' => 0, 'tried' => 0, 'in_room' => 0, 'decided' => 0, 'bought' => 0, 'returned' => 0], $summary['funnel']);
-            self::assertNull($summary['tried_share']);
+            self::assertNull($summary['decided_share']);
             self::assertSame('0.00', $summary['store_credit']);
         }
         self::assertSame([], $this->dashboard->slowMovers(self::porto('2031-03-12 15:00')));

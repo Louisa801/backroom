@@ -84,10 +84,9 @@ require __DIR__ . '/../../templates/header.php';
                 <p class="steps-line">
                     Requested <strong><?= e($f['requested']) ?></strong>
                     <span aria-hidden="true">→</span><span class="visually-hidden">, then</span>
-                    Tried <strong><?= e($f['tried']) ?></strong> (<?= e(format_percent($summary['tried_share'])) ?>)
+                    Decided <strong><?= e($f['decided']) ?></strong> (<?= e(format_percent($summary['decided_share'])) ?>)
                     <span aria-hidden="true">→</span><span class="visually-hidden">, then</span>
-                    Bought <strong><?= e($f['bought']) ?></strong>
-                    (<?= $summary['conversion'] === null ? 'nothing decided yet' : e(format_percent($summary['conversion'])) . ' of decided' ?>)
+                    Bought <strong><?= e($f['bought']) ?></strong> (<?= e(format_percent($summary['conversion'])) ?>)
                 </p>
 
                 <div class="stack" aria-hidden="true">

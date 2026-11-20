@@ -47,7 +47,7 @@ final class Dashboard
      *
      * @return array{
      *   period: array, in_archive: int, sold: int, revenue: string, gross_margin: ?float,
-     *   conversion: ?float, tried_share: ?float,
+     *   conversion: ?float, decided_share: ?float,
      *   funnel: array{requested: int, on_way: int, tried: int, in_room: int, decided: int, bought: int, returned: int},
      *   store_credit: string
      * }
@@ -106,7 +106,8 @@ final class Dashboard
             'gross_margin' => $revenue > 0 ? ($revenue - (float) $sales['cost']) / $revenue : null,
             // Buy rate: of the items requested in the period, bought / decided (bought or returned).
             'conversion'   => $decided > 0 ? (float) $bought / $decided : null,
-            'tried_share'  => $requested > 0 ? (float) $tried / $requested : null,
+            // Step line: share of the requested items that have been decided (bought or returned).
+            'decided_share' => $requested > 0 ? (float) $decided / $requested : null,
             'funnel'       => [
                 'requested' => $requested,
                 'on_way'    => $onWay,

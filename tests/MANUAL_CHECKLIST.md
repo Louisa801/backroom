@@ -72,7 +72,7 @@ First version checked 2026-11-18; redesigned and rechecked 2026-11-20. Page: `/m
 | ✓ | "Today" and "This week" switch the figures; the date range line shows the right period in Porto time (the week starts on Monday). |
 | ✓ | The three main tiles (Sold, Revenue in whole euros, Gross margin) are what you see first, each with one short explanation. |
 | ✓ | Under the tiles one quiet line: "27 items in the archive · €74.40 given as store credit this week" (after a fresh reset); no band at the bottom. |
-| ✓ | After a fresh reset, this week shows 7 sold, €204 and 68%, and the try-ons read "Requested 22 → Tried 19 (86%) → Bought 7 (44% of decided)". |
+| ✓ | After a fresh reset, this week shows 7 sold, €204 and 68%, and the try-ons read "Requested 22 → Decided 16 (73%) → Bought 7 (44%)" (decided ÷ requested, then bought ÷ decided). |
 | ✓ | The try-on table adds up: 7 bought + 9 returned + 3 still in a fitting room + 3 on their way = 22 requested, and the bar shows the same split. |
 | ✓ | The line under the table explains the buy rate (bought ÷ decided = 7 ÷ 16). |
 | ✓ | Selling an item on the staff screen moves it from "still in a fitting room" to "bought" and raises Sold and Revenue after a reload. |
