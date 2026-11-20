@@ -65,17 +65,17 @@ Checked 2026-11-18. Page: `/staff/`. Compare with `docs/mockups/3-staff.png` (de
 
 ## M7: Manager dashboard
 
-First version checked 2026-11-18; redesigned after that check, so the rows below need a recheck. Page: `/manager/`. Compare with `docs/mockups/4-dashboard.png` (deviations and the redesign are explained in `docs/UI_BACKLOG.md`).
+First version checked 2026-11-18; redesigned and rechecked 2026-11-20. Page: `/manager/`. Compare with `docs/mockups/4-dashboard.png` (deviations and the redesign are explained in `docs/UI_BACKLOG.md`).
 
 | ✓ | Check |
 |---|---|
-|   | "Today" and "This week" switch the figures; the date range line shows the right period in Porto time (the week starts on Monday). |
-|   | The three main tiles (Sold, Revenue in whole euros, Gross margin) are what you see first, each with one short explanation. |
-|   | Under the tiles one quiet line: "27 items in the archive · €74.40 given as store credit this week" (after a fresh reset); no band at the bottom. |
-|   | After a fresh reset, this week shows 7 sold, €204 and 68%, and the try-ons read "Requested 22 → Tried 19 (86%) → Bought 7 (44% of decided)". |
-|   | The try-on table adds up: 7 bought + 9 returned + 3 still in a fitting room + 3 on their way = 22 requested, and the bar shows the same split. |
-|   | The line under the table explains the buy rate (bought ÷ decided = 7 ÷ 16). |
-|   | Selling an item on the staff screen moves it from "still in a fitting room" to "bought" and raises Sold and Revenue after a reload. |
-|   | With no sales or no requests in the period (e.g. today early in the morning), margin shows "–" with a plain note, the try-ons say "No try-on requests today yet", and nothing breaks. |
-|   | Slow movers are a compact table (Item, Size, Shelf, Days, Price), oldest first; no "Mark down" buttons. |
-|   | At 375px: tiles stacked, try-ons above slow movers, the table fits, nothing scrolls sideways. On a laptop: three tiles in a row, try-ons and slow movers side by side. |
+| ✓ | "Today" and "This week" switch the figures; the date range line shows the right period in Porto time (the week starts on Monday). |
+| ✓ | The three main tiles (Sold, Revenue in whole euros, Gross margin) are what you see first, each with one short explanation. |
+| ✓ | Under the tiles one quiet line: "27 items in the archive · €74.40 given as store credit this week" (after a fresh reset); no band at the bottom. |
+| ✓ | After a fresh reset, this week shows 7 sold, €204 and 68%, and the try-ons read "Requested 22 → Tried 19 (86%) → Bought 7 (44% of decided)". |
+| ✓ | The try-on table adds up: 7 bought + 9 returned + 3 still in a fitting room + 3 on their way = 22 requested, and the bar shows the same split. |
+| ✓ | The line under the table explains the buy rate (bought ÷ decided = 7 ÷ 16). |
+| ✓ | Selling an item on the staff screen moves it from "still in a fitting room" to "bought" and raises Sold and Revenue after a reload. |
+| ✓ | With no sales or no requests in the period (e.g. today early in the morning), margin shows "–" with a plain note, the try-ons say "No try-on requests today yet", and nothing breaks. |
+| ✓ | Slow movers are a compact table (Item, Size, Shelf, Days, Price), oldest first; no "Mark down" buttons. |
+| ✓ | At 375px: tiles stacked, try-ons above slow movers, the table fits, nothing scrolls sideways. On a laptop: three tiles in a row, try-ons and slow movers side by side. |
