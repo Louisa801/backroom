@@ -19,7 +19,7 @@ final class IntakeSaveTest extends TestCase
         $this->pdo = db();
         $this->pdo->beginTransaction();
         $this->intake = new Intake($this->pdo);
-        $this->staffId = current_staff_id($this->pdo);
+        $this->staffId = test_staff_id($this->pdo);
         $this->categoryId = (int) $this->pdo->query('SELECT min(id) FROM categories')->fetchColumn();
     }
 

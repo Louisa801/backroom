@@ -2,9 +2,10 @@
 declare(strict_types=1);
 
 // M7: manager dashboard (redesigned after the hand check; see docs/UI_BACKLOG.md).
-// (Login is added in the login story.)
+// Staff only (one role in the MVP: every staff member can see the dashboard).
 
 require_once __DIR__ . '/../../src/bootstrap.php';
+require_login();
 
 $periodName = is_string($_GET['period'] ?? null) ? $_GET['period'] : 'week';
 $now = new DateTimeImmutable('now', new DateTimeZone(Dashboard::TIMEZONE));
@@ -32,7 +33,7 @@ $places = [
 $items = static fn (int $n): string => $n === 1 ? '1 item' : number_format($n) . ' items';
 
 $pageTitle = 'Dashboard';
-$headerNote = 'Manager';
+$staffNav = 'dashboard';
 require __DIR__ . '/../../templates/header.php';
 ?>
 <div class="dashboard">

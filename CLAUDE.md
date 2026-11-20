@@ -59,6 +59,7 @@ docs/              data model diagram, screenshots
 - Always use prepared statements. Never put user input in SQL strings.
 - Escape all output with the `e()` helper (`htmlspecialchars`).
 - Forms that change data use POST and a CSRF token.
+- Every staff and manager page starts with `require_login()` (endpoints fetched by JavaScript: `require_login_api()`). `tests/unit/StaffAccessTest.php` requests every file in `public/staff/` and `public/manager/` without a login, so a new page can't be forgotten. Customer pages stay public.
 - Passwords stored with `password_hash`, checked with `password_verify`.
 - Status changes go through one function per transition, inside a transaction, and check the current status first (so two tablets can't request the same item).
 - Money is stored as `NUMERIC(8,2)` in euros.

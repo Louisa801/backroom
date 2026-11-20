@@ -28,6 +28,10 @@
     if (!board || document.hidden || sending) return;
     try {
       const response = await fetch('/staff/board.php', { cache: 'no-store', headers: { Accept: 'text/html' } });
+      if (response.status === 401) {
+        window.location.reload(); // logged out (e.g. after 8 hours): the page sends us to the login
+        return;
+      }
       if (!response.ok || sending) return;
       const holder = document.createElement('template');
       holder.innerHTML = (await response.text()).trim(); // markup from our own server, already escaped

@@ -4,8 +4,7 @@ declare(strict_types=1);
 // Every button on the staff board posts here: one status change, then back to the board.
 
 require_once __DIR__ . '/../../src/bootstrap.php';
-
-start_session();
+require_login();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: /staff/', true, 303);

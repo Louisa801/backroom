@@ -4,13 +4,17 @@ A second-hand clothing shop with a coffee bar up front and the stock in a back-r
 
 ## Demo login
 
-Staff and manager screens (`/staff/`, `/manager/`):
+The staff and manager screens need a login; the customer tablet (`/`) doesn't. Log in at `/staff/login.php`, or just open `/staff/` or `/manager/` and you are sent there and back.
 
 | Email | Password |
 |---|---|
 | `staff@backroom.test` | `backroom-demo` |
 
 This user comes from `sql/seed.sql`. It is for local development and the demo only.
+
+- After 5 wrong attempts for an email, wait 1 minute before trying again.
+- You are logged out after 8 hours without activity, or with "Log out" in the header.
+- Every staff member can also see the dashboard (one role in the MVP).
 
 ## Run locally
 
@@ -31,6 +35,8 @@ PHP extensions: `pdo_pgsql`, `gd` (JPEG, PNG, WebP), `exif`, `fileinfo`, `mbstri
 Unit tests (PHPUnit). The database tests use `DATABASE_URL` and roll back everything they insert:
 
 - `vendor/bin/phpunit`
+
+`StaffAccessTest` starts its own PHP server on a free port and checks over HTTP that every staff and manager page needs a login, and that the customer pages stay public.
 
 Database constraint tests check that the database refuses bad data (negative prices, unknown statuses, fitting room 4, and so on). Run them right after a reset; each test is rolled back, so the data is unchanged. Every line should say `PASS`; a failure stops the run with an error.
 

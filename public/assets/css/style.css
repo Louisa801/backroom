@@ -802,6 +802,54 @@ body.has-tryon .page {
   outline-color: var(--bg);
 }
 
+/* ---------- Login and the logged-in staff member ---------- */
+
+.staff-user {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  color: var(--bg);
+}
+
+.staff-user__name {
+  font-weight: 700;
+}
+
+.staff-user__logout {
+  min-height: var(--tap);
+  padding: 0 var(--s3);
+  border: 2px solid var(--bg);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--bg);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.staff-user__logout:focus-visible {
+  outline-color: var(--bg);
+}
+
+.login {
+  max-width: 420px;
+}
+
+.login__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  margin-bottom: var(--s4);
+}
+
+.login__form .button--large {
+  width: 100%;
+}
+
+.login__public {
+  color: var(--ink-soft);
+}
+
 /* ---------- M4/M6: staff board (docs/mockups/3-staff.png) ---------- */
 
 .board {

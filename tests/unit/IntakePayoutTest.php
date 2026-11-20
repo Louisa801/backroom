@@ -71,7 +71,7 @@ final class IntakePayoutTest extends TestCase
         $pdo = db();
         $pdo->beginTransaction();
         try {
-            $staffId = current_staff_id($pdo);
+            $staffId = test_staff_id($pdo);
             $stmt = $pdo->prepare("INSERT INTO buy_ins (staff_id, payout_type, cash_amount, payout_amount) VALUES (?, 'store_credit', ?, ?)");
             foreach ([1, 4, 5, 1004, 1234, 5850, 99999, 123457] as $cash) {
                 $payout = Intake::payout([$cash], 'store_credit');

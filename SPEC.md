@@ -82,8 +82,13 @@ A try-on request has its own status: `new` → `fetching` → `ready` → `close
 - Store credit given out this week.
 
 ### Staff login
-- Staff and manager screens require a login (email + password).
-- The customer tablet requires no login.
+- Staff and manager screens require a login (email + password) at `/staff/login.php`. One role in the MVP: every staff member can also see the dashboard.
+- The customer tablet requires no login (archive, request status, item photos and their endpoints stay public).
+- An unknown email and a wrong password get the same message: "Email or password is incorrect."
+- After 5 failed attempts for an email, every login for that email waits 1 minute (also with the right password).
+- Without a login, a staff or manager page goes to the login page and, after logging in, back to that page (only local staff and manager paths). Endpoints answer 401.
+- The staff header shows who is logged in and a "Log out" button. Buy-ins record the logged-in staff member.
+- A session ends automatically after 8 hours without activity.
 
 ## Business rules
 
@@ -92,6 +97,8 @@ A try-on request has its own status: `new` → `fetching` → `ready` → `close
 | Store-credit bonus | × 1.2 of the cash amount |
 | Max items per try-on request | 5 |
 | Unsent try-on list | Cleared after 10 minutes without interaction |
+| Login guessing limit | 5 failed attempts per email, then wait 1 minute |
+| Staff session | Ends after 8 hours without activity |
 | Request status page | Back to the archive 60 seconds after `ready` or `closed` |
 | Items per buy-in | 1 to 10 |
 | Item photo | JPEG, PNG or WebP, up to 8 MB. On save it is resized to at most 1200px wide, stored as a JPEG (about 80% quality) in the database |

@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-// M4 + M6: fetch queue and fitting rooms. (Login is added in the login story.)
+// M4 + M6: fetch queue and fitting rooms. Staff only.
 
 require_once __DIR__ . '/../../src/bootstrap.php';
+require_login();
 
 $requests = new Requests(db());
 $csrf = csrf_token();

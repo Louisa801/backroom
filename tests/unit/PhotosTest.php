@@ -231,7 +231,7 @@ final class PhotosTest extends TestCase
             $used = $photos->store($data);
             $pdo->exec("UPDATE photos SET created_at = now() - interval '2 days' WHERE id IN ($old, $used)");
 
-            $staffId = current_staff_id($pdo);
+            $staffId = test_staff_id($pdo);
             $buyIn = (int) $pdo->query("INSERT INTO buy_ins (staff_id, payout_type, cash_amount, payout_amount) VALUES ($staffId, 'cash', 1, 1) RETURNING id")->fetchColumn();
             $category = (int) $pdo->query('SELECT min(id) FROM categories')->fetchColumn();
             $pdo->exec("INSERT INTO items (buy_in_id, category_id, title, size, colour, condition, purchase_price, sale_price, photo_id, shelf_code)

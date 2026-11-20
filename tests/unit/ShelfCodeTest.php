@@ -58,7 +58,7 @@ final class ShelfCodeTest extends TestCase
         $pdo = db();
         $pdo->beginTransaction();
         try {
-            $staffId = current_staff_id($pdo);
+            $staffId = test_staff_id($pdo);
             $buyIn = (int) $pdo->query("INSERT INTO buy_ins (staff_id, payout_type, cash_amount, payout_amount) VALUES ($staffId, 'cash', 20, 20) RETURNING id")->fetchColumn();
             $category = (int) $pdo->query('SELECT min(id) FROM categories')->fetchColumn();
             $stmt = $pdo->prepare(

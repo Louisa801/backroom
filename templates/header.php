@@ -18,9 +18,17 @@
         <nav class="staff-nav" aria-label="Staff">
             <a href="/staff/"<?= $staffNav === 'board' ? ' aria-current="page"' : '' ?>>Queue &amp; rooms</a>
             <a href="/staff/intake.php"<?= $staffNav === 'intake' ? ' aria-current="page"' : '' ?>>Buy-in</a>
+            <a href="/manager/"<?= $staffNav === 'dashboard' ? ' aria-current="page"' : '' ?>>Dashboard</a>
         </nav>
-    <?php endif; ?>
-    <?php if (!empty($headerNote)): ?>
+        <?php $staffMember = current_staff(); ?>
+        <?php if ($staffMember !== null): ?>
+            <form class="staff-user" method="post" action="/staff/logout.php">
+                <span class="staff-user__name"><?= e($staffMember['name']) ?></span>
+                <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                <button type="submit" class="staff-user__logout">Log out</button>
+            </form>
+        <?php endif; ?>
+    <?php elseif (!empty($headerNote)): ?>
         <span class="site-header__note"><?= e($headerNote) ?></span>
     <?php endif; ?>
 </header>

@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-// M5: buy-in from a walk-in seller. (Login is added in the login story.)
+// M5: buy-in from a walk-in seller. Staff only.
 
 require_once __DIR__ . '/../../src/bootstrap.php';
+require_login();
 
 /** Render one item block in its own scope. */
 function render_intake_item(string|int $key, int|string $number, array $row, array $rowErrors, array $categories): void
@@ -51,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($errors === []) {
             try {
-                $buyInId = $intake->save($result['data'], current_staff_id($pdo));
+                $buyInId = $intake->save($result['data'], current_staff_id());
                 $_SESSION['pending_photos'] = array_values(array_diff($_SESSION['pending_photos'], array_column($result['data']['items'], 'photo_id')));
                 header('Location: /staff/intake.php?saved=' . $buyInId, true, 303);
                 exit;

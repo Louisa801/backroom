@@ -79,3 +79,19 @@ First version checked 2026-11-18; redesigned and rechecked 2026-11-20. Page: `/m
 | ✓ | With no sales or no requests in the period (e.g. today early in the morning), margin shows "–" with a plain note, the try-ons say "No try-on requests today yet", and nothing breaks. |
 | ✓ | Slow movers are a compact table (Item, Size, Shelf, Days, Price), oldest first; no "Mark down" buttons. |
 | ✓ | At 375px: tiles stacked, try-ons above slow movers, the table fits, nothing scrolls sideways. On a laptop: three tiles in a row, try-ons and slow movers side by side. |
+
+## Login
+
+Checked 2026-11-20. Page: `/staff/login.php`. Demo login: `staff@backroom.test` / `backroom-demo`.
+
+| ✓ | Check |
+|---|---|
+| ✓ | Opening `/staff/`, `/staff/intake.php` or `/manager/` without a login goes to the login page; after logging in you are back on the page you opened. |
+| ✓ | A wrong password and an unknown email both show "Email or password is incorrect." |
+| ✓ | After 5 wrong attempts, even the right password says "Too many attempts. Please wait a minute and try again."; a minute later it works. |
+| ✓ | The staff header shows your name and a "Log out" button; the menu links Queue & rooms, Buy-in and Dashboard on every staff screen. |
+| ✓ | "Log out" ends the session: the staff pages need a login again, and the login page says "You are logged out." |
+| ✓ | A buy-in records who was logged in: `psql $env:DATABASE_URL -c "SELECT b.id, s.name FROM buy_ins b JOIN staff_users s ON s.id = b.staff_id ORDER BY b.id DESC LIMIT 1"` |
+| ✓ | The customer tablet still needs no login: archive, try-on list, request status and photos work in a private window. |
+| ✓ | On the staff board, the 10-second refresh keeps working while logged in; after logging out in another tab, the board goes to the login page. |
+| ✓ | At 375px the login form and the staff header (name, Log out, menu) fit and are easy to tap. |

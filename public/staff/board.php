@@ -4,6 +4,7 @@ declare(strict_types=1);
 // The staff board without the page around it, for the 10-second refresh in staff.js.
 
 require_once __DIR__ . '/../../src/bootstrap.php';
+require_login_api();
 
 $requests = new Requests(db());
 $csrf = csrf_token();

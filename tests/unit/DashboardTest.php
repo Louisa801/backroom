@@ -28,7 +28,7 @@ final class DashboardTest extends TestCase
         foreach (['sales', 'request_items', 'tryon_requests', 'items', 'photos', 'buy_ins'] as $table) {
             $this->pdo->exec("DELETE FROM $table");
         }
-        $this->staffId = current_staff_id($this->pdo);
+        $this->staffId = test_staff_id($this->pdo);
         $this->categoryId = (int) $this->pdo->query('SELECT min(id) FROM categories')->fetchColumn();
         $this->dashboard = new Dashboard($this->pdo);
     }
