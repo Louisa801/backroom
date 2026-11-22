@@ -104,7 +104,7 @@ CREATE TABLE request_items (
     request_id INTEGER NOT NULL REFERENCES tryon_requests(id),
     item_id    INTEGER NOT NULL REFERENCES items(id),
     outcome    TEXT CHECK (outcome IN ('sold', 'returned')),
-    outcome_at TIMESTAMPTZ,  -- when "Sold" or "Back to archive" was pressed (M7 conversion)
+    outcome_at TIMESTAMPTZ,  -- when "Sold" or "Back to archive" was pressed (set together with outcome)
     PRIMARY KEY (request_id, item_id),
     CONSTRAINT request_items_outcome_at_matches CHECK ((outcome IS NULL) = (outcome_at IS NULL))
 );
