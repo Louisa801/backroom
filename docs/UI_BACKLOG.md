@@ -13,7 +13,7 @@ Ideas noted after M1, not built yet:
 
 ### Added later: staff header
 
-The mockups show no staff header. The staff and manager screens have one row: "Backroom", the menu (Queue & rooms · Buy-in · Dashboard), then the staff member's name and "Log out".
+The mockups show no staff header. The staff and manager screens have one row: "Backroom", the menu (Queue & rooms · Buy-in · Dashboard · Archive), then the staff member's name and "Log out". "Archive" opens the customer archive; on the customer pages a logged-in staff member sees "← Staff screen" in the header to go back (customers never see it).
 - **From 1,500px wide,** the menu starts at the same left edge as the page content.
 - **From 900 to 1,499px,** it follows "Backroom", because there is no room for both: at 1,280px the content starts at 64px and "Backroom" ends at about 140px.
 - **Below 900px,** a "☰ Menu" button opens a dropdown with the same links, the name and "Log out".

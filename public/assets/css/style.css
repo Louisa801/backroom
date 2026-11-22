@@ -769,6 +769,24 @@ body.has-tryon .page {
   border-left: 4px solid var(--ink-soft);
 }
 
+/* Customer pages, staff logged in: a clear way back to the staff screen. */
+.site-header__back {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 var(--s3);
+  border: 2px solid var(--bg);
+  border-radius: var(--radius);
+  color: var(--bg);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-header__back:focus-visible {
+  outline-color: var(--bg);
+}
+
 /* ---------- Staff header: one row; a ☰ dropdown below 900px (staff-menu.js) ---------- */
 
 .site-header {

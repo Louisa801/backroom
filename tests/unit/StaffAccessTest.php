@@ -292,6 +292,28 @@ final class StaffAccessTest extends TestCase
         }
     }
 
+    public function testStaffScreenLinkOnlyForLoggedInStaff(): void
+    {
+        $customerPages = ['/', '/request.php?id=' . self::$requestId];
+
+        // A customer (no login) never sees it.
+        foreach ($customerPages as $url) {
+            self::assertStringNotContainsString('Staff screen', $this->http('GET', $url, jar: $this->browser())['body'], "$url without a login");
+        }
+
+        // A logged-in staff member gets a clear way back.
+        $jar = $this->browser();
+        $this->logIn($jar);
+        foreach ($customerPages as $url) {
+            self::assertStringContainsString('<a class="site-header__back" href="/staff/">← Staff screen</a>', $this->http('GET', $url, jar: $jar)['body'], "$url while logged in");
+        }
+
+        // After logging out it's gone again.
+        $board = $this->http('GET', '/staff/', jar: $jar)['body'];
+        $this->http('POST', '/staff/logout.php', ['csrf_token' => self::csrf($board)], $jar);
+        self::assertStringNotContainsString('Staff screen', $this->http('GET', '/', jar: $jar)['body'], 'after logging out');
+    }
+
     public function testCustomerPagesHaveAQuietStaffLinkStaffPagesDont(): void
     {
         foreach (['/', '/request.php?id=' . self::$requestId] as $url) {
@@ -372,9 +394,10 @@ final class StaffAccessTest extends TestCase
             self::assertMatchesRegularExpression('#<button type="button" class="staff-menu-button" aria-expanded="false" aria-controls="staff-menu">#', $body, "$url: menu button");
             self::assertStringContainsString('</span> Menu', $body, "$url: the button is labelled Menu");
 
-            // The panel holds the three screens and the Log out form.
+            // The panel holds the three staff screens, the customer archive and the Log out form.
             preg_match('#<div class="staff-menu" id="staff-menu">(.*?)</div>\s*</header>#s', $body, $panel);
             self::assertNotEmpty($panel, "$url: menu panel");
+            self::assertStringContainsString('<a href="/">Archive</a>', $panel[1], "$url: link to the customer archive");
             foreach (['/staff/', '/staff/intake.php', '/manager/'] as $link) {
                 self::assertStringContainsString('href="' . $link . '"', $panel[1], "$url: link to $link");
             }
