@@ -126,3 +126,37 @@ Findings from [`UI_REVIEW.md`](UI_REVIEW.md) that weren't fixed in this round. E
 | B4 | Buy-in | "Save buy-in" at least as prominent as "Add item". |
 | D1 | Dashboard | A compact row of the three numbers on phones. |
 | D2 | Dashboard | Stronger colours in the funnel bar (partly done: "on their way" is darker inside the new block). |
+
+## Next version: Louisa's notes
+
+Louisa's own notes after building and testing the MVP (2026-11-22). Not built. As with the rest of this backlog, an item is only built after it has been added to SPEC.md. Notes that were already in this backlog point to the existing entry instead of repeating it.
+
+### Customer side
+
+1. **Multiple options per filter** (for example size M and L): already listed as [M1 idea 1, "Multi-select filters"](#m1-browse-and-filter-the-archive-mockup-1-browsepng) and A6 under "Next version".
+2. **Price filter as a range from €0 to the highest price in the archive**, instead of fixed steps up to €100: already listed as M1 idea 2, "Price range up to the highest price".
+3. **"Clear filters" only when a filter is active**: already listed as M1 idea 3, and A6 under "Next version".
+4. **Back from an item page returns to the same scroll position in the archive**, not the top. Today "← Back to the archive" keeps the filters but starts at the top of the list.
+5. **The close button of the try-on list should look different from the Remove buttons.** Both are small outlined terracotta buttons now; the close button ("✕ Close", added in the UI review, T2) should read as closing the panel, not as one more action on the list.
+
+### Staff side
+
+6. **Multiple staff:** each staff member has their own account, sees only what still needs doing, and can assign a request to themselves. Today there's one role and all staff see the same queue (SPEC "Staff login": one role in the MVP).
+7. **Add new staff logins from within the staff screens.** Today staff users only come from `sql/seed.sql`.
+8. **Edit items from the archive** (for example a typo in the title, a new price or another shelf).
+9. **Notes on an item**, for example "small hole at the elbow" or "don't wash above 30°", visible to staff and possibly to customers on the item page.
+10. **A buy-in history page with all past buy-ins.** Today only the buy-in that was just saved is shown, on its confirmation.
+11. **Photos in the fetch queue**, to recognise items faster on the shelf. Today the queue shows title, size and shelf code; the fitting rooms already have photos.
+12. **The layout of the staff link and button.** This covers the quiet "Staff" link in the customer footer (see "Added later: 'Staff' link in the footer"), the "← Staff screen" button for logged-in staff (see "Added later: staff header"), and the "Staff" label on the login page (G2 / L1 under "Next version").
+
+### Archive organisation
+
+13. **Racks and shelf codes divided logically by category (and colour),** so items are easy to put away and retrieve. For example, one rack per category, and spots grouped by colour within a rack. The shelf-code suggestion in the buy-in form should follow that layout. Today it suggests the first free spot from A-01 onward, whatever the item is (SPEC M5).
+
+### Shop process (service design, outside the software)
+
+Ideas for the shop itself, not for the app:
+
+14. **Customers write their name on their request**, so staff can call them and hang the items for the right person.
+15. **A rack in front of each fitting room, divided into sections:** a name card on a hanger per customer, and one section for items that go back to the archive.
+16. **A couch in front of the fitting rooms** for people who are waiting.
