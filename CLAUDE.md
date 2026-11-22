@@ -52,7 +52,10 @@ docs/              data model diagram, screenshots
   - bash: `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f tests/db/rejections.sql`
   - PowerShell: `psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -q -f tests/db/rejections.sql`
 - Unit tests: `vendor/bin/phpunit`
-- End-to-end tests: `npx playwright test`
+- End-to-end tests (Playwright, `tests/e2e/`), PowerShell:
+  - once: `createdb -U postgres -h localhost -O backroom backroom_test`, set the user variable `TEST_DATABASE_URL` (database name must end in `_test`), then `npm install`
+  - run all: `npx playwright test`; one file: `npx playwright test tests/e2e/customer.spec.js`; report: `npx playwright show-report`
+  - Playwright starts its own `php -S 127.0.0.1:8100` on the test database and resets it with `schema.sql` + `seed.sql` before every test. It uses the installed Edge. It refuses to run against `DATABASE_URL`.
 
 ## Code rules
 - Business logic lives in `src/`, never in page files. Pages only read input, call `src/`, and render.

@@ -2,6 +2,18 @@
 
 Checks done by hand after each user story, on desktop and on a phone-sized screen (375px, DevTools device mode). Reset the database first: `psql $env:DATABASE_URL -f sql/schema.sql -f sql/seed.sql`.
 
+## Testing overview
+
+What is checked automatically, and what is left for these checks by hand. Commands are in the README.
+
+| Tests | Command (PowerShell) | What they cover |
+|---|---|---|
+| Unit and integration tests (PHPUnit) | `vendor/bin/phpunit` | The logic in `src/`: filters, payout, validation, photos, every status change and refusal (also two tablets or two staff members at once), the dashboard figures with fixed dates, login and the 5-attempt limit. `StaffAccessTest` checks over HTTP that every staff/manager page needs a login and that the customer pages stay public. |
+| Database constraint tests | `psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -q -f tests/db/rejections.sql` | The database itself refuses bad data (negative prices, unknown statuses, fitting room 4, a second sale of the same item, …). |
+| End-to-end tests (Playwright) | `npx playwright test` | The critical flows in a real browser, on a separate test database: customer flow (also at 375px), full staff flow with the customer page updating by itself, buy-in with a real photo, two tablets wanting the same item, login protection. |
+| End-to-end flows by hand | – | The same 5 flows as the Playwright tests, clicked through by hand at laptop width and at 375px (see "End-to-end flows (tested by hand)" below). |
+| By hand (this file) | – | Look and feel, the mockups, readability, keyboard use, real phone photos, things a test can't judge. |
+
 ## M1: Browse and filter the archive
 
 Checked 2026-11-17.
@@ -110,3 +122,15 @@ Checked 2026-11-22. Page: `/item.php?id=` (open it by clicking a card's photo or
 | ✓ | "← Back to the archive" returns to the archive with the same filters as before. |
 | ✓ | An item that was just requested or sold (e.g. `/item.php?id=12` after a reset) shows "This item has just been taken" with a working "Back to the archive" button, no error. |
 | ✓ | At 375px: photo full width, then the details, nothing scrolls sideways. On a laptop: photo left, details right. |
+
+## End-to-end flows (tested by hand)
+
+The same 5 flows as the automated tests in `tests/e2e/`, clicked through by hand several times at laptop width and at 375px. Checked 2026-11-22.
+
+| ✓ | Flow |
+|---|---|
+| ✓ | Customer: filter the archive, open an item, add 2 items to the try-on list, send them to a fitting room, and land on the status page. |
+| ✓ | Full staff flow: log in, start fetching that request, mark it ready (the customer status page updates by itself), mark one item Sold and one Back to archive, and the request closes. The sold item is gone from the archive and the returned one is back. |
+| ✓ | Buy-in: add an item with a real photo, and it appears in the archive with its photo. |
+| ✓ | Two tablets, same item: two browsers request the same item; one gets it, the other gets the "taken" message. |
+| ✓ | Login protection: a staff page without login goes to the login page, and after logging in you return to it. |

@@ -1,0 +1,11 @@
+{
+  "name": "backroom-e2e",
+  "private": true,
+  "description": "End-to-end tests for Backroom (Playwright). The app itself has no build step.",
+  "scripts": {
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0"
+  }
+}

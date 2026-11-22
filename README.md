@@ -43,6 +43,36 @@ Database constraint tests check that the database refuses bad data (negative pri
 - PowerShell: `psql $env:DATABASE_URL -v ON_ERROR_STOP=1 -q -f tests/db/rejections.sql`
 - bash: `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -f tests/db/rejections.sql`
 
+### End-to-end tests (Playwright)
+
+`tests/e2e/` clicks through the critical flows in a real browser (the Microsoft Edge installed on Windows, so no browser download):
+
+| File | Flow |
+|---|---|
+| `customer.spec.js` | Filter the archive, open an item, put 2 items on the try-on list, send them to a fitting room, land on the status page. Also at a 375px phone size. |
+| `staff.spec.js` | A customer sends 2 items; staff log in, start fetching, mark ready (the customer page updates by itself), sell one, put one back; the request closes, the archive is right. |
+| `buyin.spec.js` | A buy-in with a real photo appears in the archive with that photo. |
+| `two-tablets.spec.js` | Two tablets want the same item: one gets it, the other is told it was just taken. |
+| `login.spec.js` | A staff page without a login goes to the login page and back afterwards; a wrong password shows a plain message. |
+
+The tests never touch your own data. They use a separate test database, reset with `schema.sql` + `seed.sql` before **every** test, so each test runs on its own and in any order. Playwright starts its own PHP server on port 8100 with that database (your `localhost:8000` keeps running).
+
+One-time setup (PowerShell):
+
+```powershell
+createdb -U postgres -h localhost -O backroom backroom_test
+[Environment]::SetEnvironmentVariable('TEST_DATABASE_URL', 'postgresql://backroom:YOURPASSWORD@localhost:5432/backroom_test', 'User')
+npm install
+```
+
+Restart VS Code after setting the variable. The test database name must end in `_test`; the tests refuse to run against `DATABASE_URL`.
+
+Run (PowerShell):
+
+- all tests: `npx playwright test`
+- one file: `npx playwright test tests/e2e/customer.spec.js`
+- see the HTML report (with screenshots and traces of failures): `npx playwright show-report`
+
 The demo data uses dates relative to the moment you reset, so the dashboard always shows figures for today and this week. Reset again before a demo.
 
 ## Demo data at a glance
