@@ -76,13 +76,19 @@
     });
     const checked = form.querySelector('input[name="payout_type"]:checked');
     const type = checked ? checked.value : '';
+    const credit = Math.floor((cash * 120 + 50) / 100);
+
+    // The amounts on the two choices themselves (as in the mockup): "Cash · €8.00", "Store credit · €9.60".
+    const cashAmount = form.querySelector('[data-payout-amount="cash"]');
+    const creditAmount = form.querySelector('[data-payout-amount="store_credit"]');
+    if (cashAmount) cashAmount.textContent = any ? ' · ' + euro.format(cash / 100) : '';
+    if (creditAmount) creditAmount.textContent = any ? ' · ' + euro.format(credit / 100) : ' (cash × 1.2)';
 
     if (!any) {
       output.textContent = 'Enter purchase prices and choose cash or store credit.';
     } else if (type === 'cash') {
       output.textContent = 'Pay out ' + euro.format(cash / 100) + ' in cash.';
     } else if (type === 'store_credit') {
-      const credit = Math.floor((cash * 120 + 50) / 100);
       output.textContent = 'Pay out ' + euro.format(credit / 100) + ' in store credit (cash value ' + euro.format(cash / 100) + ').';
     } else {
       output.textContent = 'Cash value ' + euro.format(cash / 100) + '. Choose cash or store credit.';

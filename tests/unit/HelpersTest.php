@@ -29,6 +29,17 @@ final class HelpersTest extends TestCase
         self::assertSame('100%', format_percent(1.0));
     }
 
+    public function testFormatsWaitingTimes(): void
+    {
+        self::assertSame('just now', format_waiting(0));
+        self::assertSame('waiting 1 min', format_waiting(1));
+        self::assertSame('waiting 59 min', format_waiting(59));
+        self::assertSame('waiting 1 h', format_waiting(60));
+        self::assertSame('waiting 1 h 1 min', format_waiting(61));
+        self::assertSame('waiting 2 h 23 min', format_waiting(143));
+        self::assertSame('waiting 3 h', format_waiting(180));
+    }
+
     public function testFormatsWholeEuros(): void
     {
         self::assertSame('€204', format_whole_euros('204.00'));

@@ -56,4 +56,30 @@
   });
 
   setInterval(refresh, REFRESH_MS);
+
+  // ---------- The toast with the result of the last tap ----------
+  // Shown at the bottom of the screen, announced to screen readers, hidden after 10 seconds
+  // (not while the pointer or the keyboard focus is on it) or with its close button.
+  const TOAST_MS = 10000;
+  const toast = document.querySelector('[data-toast]');
+  if (toast) {
+    const text = toast.querySelector('.toast__text');
+    const html = text.innerHTML; // markup from our own server, already escaped
+    // A live region that is filled when the page loads isn't always announced:
+    // empty it and put the message back a moment later.
+    text.innerHTML = '';
+    setTimeout(() => { text.innerHTML = html; }, 100);
+
+    let timer = null;
+    const hide = () => { toast.hidden = true; };
+    const start = () => { clearTimeout(timer); timer = setTimeout(hide, TOAST_MS); };
+    const pause = () => clearTimeout(timer);
+
+    toast.querySelector('[data-toast-close]').addEventListener('click', hide);
+    toast.addEventListener('mouseenter', pause);
+    toast.addEventListener('mouseleave', start);
+    toast.addEventListener('focusin', pause);
+    toast.addEventListener('focusout', start);
+    start();
+  }
 })();

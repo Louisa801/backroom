@@ -19,6 +19,20 @@ function format_whole_euros(string|int|float $amount): string
     return '€' . number_format(round((float) $amount), 0, '.', ',');
 }
 
+/** How long a request has waited, for the fetch queue: "just now", "waiting 45 min", "waiting 2 h 23 min". */
+function format_waiting(int $minutes): string
+{
+    if ($minutes < 1) {
+        return 'just now';
+    }
+    if ($minutes < 60) {
+        return "waiting $minutes min";
+    }
+    $hours = intdiv($minutes, 60);
+    $rest = $minutes % 60;
+    return $rest === 0 ? "waiting $hours h" : "waiting $hours h $rest min";
+}
+
 /** A share as a whole percentage, e.g. 0.4375 -> "44%"; "–" when there is nothing to show. */
 function format_percent(?float $share): string
 {

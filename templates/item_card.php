@@ -17,6 +17,7 @@ $itemUrl = '/item.php?id=' . $item['id'] . (($filterQuery ?? '') !== '' ? '&' . 
             <span class="card__price"><?= e(format_price($item['sale_price'])) ?></span>
         </p>
         <button type="button" class="button button--small card__tryon" data-tryon aria-pressed="false"
+                aria-label="Try this on: <?= e($item['title']) ?>"
                 data-id="<?= e($item['id']) ?>" data-title="<?= e($item['title']) ?>"
                 data-size="<?= e($item['size']) ?>" data-photo="<?= e($item['photo_url']) ?>">Try this on</button>
     </div>

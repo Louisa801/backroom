@@ -51,6 +51,7 @@
     button.dataset.title = item.title;
     button.dataset.size = item.size;
     button.dataset.photo = item.photo_url;
+    button.setAttribute('aria-label', 'Try this on: ' + item.title); // tryon.js keeps it in step with the text
     return card;
   }
 

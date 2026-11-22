@@ -9,7 +9,12 @@
 <section class="tryon" id="tryon" aria-label="Your try-on list" hidden
          data-csrf="<?= e($csrf) ?>" data-max="<?= Requests::MAX_ITEMS ?>">
     <div class="tryon__panel" id="tryon-panel" hidden>
-        <h2 class="tryon__title">Your try-on list</h2>
+        <div class="tryon__head">
+            <h2 class="tryon__title">Your try-on list</h2>
+            <button type="button" class="button button--secondary button--small tryon__close" id="tryon-close" aria-label="Close the try-on list">
+                <span aria-hidden="true">✕</span> Close
+            </button>
+        </div>
         <ul class="tryon__items" id="tryon-items"></ul>
         <p class="tryon__full" id="tryon-full" hidden>Your list is full (<?= Requests::MAX_ITEMS ?> items).</p>
 
@@ -32,6 +37,7 @@
     <div class="tryon__bar">
         <button type="button" class="tryon__toggle" id="tryon-toggle" aria-expanded="false" aria-controls="tryon-panel">
             Your try-on list · <span id="tryon-count">0 items</span>
+            <span class="tryon__chevron" aria-hidden="true">▲</span>
         </button>
         <button type="button" class="button tryon__send" id="tryon-send">Send to fitting room</button>
     </div>

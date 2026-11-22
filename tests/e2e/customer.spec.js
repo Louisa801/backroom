@@ -32,6 +32,12 @@ async function customerFlow(page) {
   await addCardToList(page, 'Quilted gilet');
   await expect(page.locator('#tryon-count')).toHaveText('2 items');
 
+  // The list opens from the bar and closes with the visible Close button.
+  await page.getByRole('button', { name: /Your try-on list/ }).click();
+  await expect(page.getByRole('heading', { name: 'Your try-on list' })).toBeVisible();
+  await page.getByRole('button', { name: 'Close the try-on list' }).click();
+  await expect(page.getByRole('heading', { name: 'Your try-on list' })).toBeHidden();
+
   // Send to fitting room 2.
   await sendList(page, 2);
   await expect(page).toHaveURL(/\/request\.php\?id=\d+$/);

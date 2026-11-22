@@ -348,6 +348,59 @@ final class StaffAccessTest extends TestCase
         self::assertStringContainsString('href="/">← Back to the archive', $plain);
     }
 
+    // ---------------- UI review fixes ----------------
+
+    public function testStaffSeeTheResultOfATapInAToastWithTheShelfInBold(): void
+    {
+        // Its own ready request with one item in a fitting room (deleted again in tearDownAfterClass).
+        $pdo = self::$pdo;
+        $shelf = Intake::suggestShelfCodes((new Intake($pdo))->takenShelfCodes())[0];
+        $stmt = $pdo->prepare(
+            "INSERT INTO items (buy_in_id, category_id, title, size, colour, condition, purchase_price, sale_price, photo_path, shelf_code, status)
+             VALUES (?, (SELECT min(id) FROM categories), 'Access test toast item', 'M', 'black', 'good', 10, 20, 'assets/test.svg', ?, 'in_fitting_room') RETURNING id"
+        );
+        $stmt->execute([self::$buyInId, $shelf]);
+        $itemId = (int) $stmt->fetchColumn();
+        $requestId = (int) $pdo->query("INSERT INTO tryon_requests (fitting_room, status, created_at, ready_at) VALUES (3, 'ready', now() - interval '5 minutes', now()) RETURNING id")->fetchColumn();
+        $pdo->exec("INSERT INTO request_items (request_id, item_id) VALUES ($requestId, $itemId)");
+
+        $jar = $this->browser();
+        $this->logIn($jar);
+        $board = $this->http('GET', '/staff/', jar: $jar)['body'];
+        $action = $this->http('POST', '/staff/action.php', [
+            'csrf_token' => self::csrf($board), 'action' => 'return', 'request_id' => (string) $requestId, 'item_id' => (string) $itemId,
+        ], $jar);
+        self::assertSame(303, $action['status']);
+
+        $page = $this->http('GET', '/staff/', jar: $jar)['body'];
+        self::assertStringContainsString('class="toast toast--success" data-toast', $page);
+        self::assertStringContainsString('id="staff-flash" role="status" aria-live="polite"', $page, 'Announced to screen readers.');
+        self::assertStringContainsString('Put it on shelf <strong>' . $shelf . '</strong>.', $page, 'The shelf code in bold.');
+        self::assertStringContainsString('aria-label="Close message"', $page);
+
+        // A refused tap shows "Nothing changed" in the info style.
+        $board = $this->http('GET', '/staff/', jar: $jar)['body'];
+        $this->http('POST', '/staff/action.php', [
+            'csrf_token' => self::csrf($board), 'action' => 'return', 'request_id' => (string) $requestId, 'item_id' => (string) $itemId,
+        ], $jar);
+        $page = $this->http('GET', '/staff/', jar: $jar)['body'];
+        self::assertStringContainsString('class="toast toast--info" data-toast', $page);
+        self::assertStringContainsString('Nothing changed:', $page);
+    }
+
+    public function testTryOnButtonsHaveUniqueNamesAndThePanelCanBeClosed(): void
+    {
+        $archive = $this->http('GET', '/')['body'];
+        self::assertStringContainsString('aria-label="Try this on: Access test archive item"', $archive);
+        preg_match_all('/class="button button--small card__tryon" data-tryon aria-pressed="false"\s+aria-label="Try this on: [^"]+"/', $archive, $named);
+        self::assertSame(substr_count($archive, 'class="button button--small card__tryon"') - 1, count($named[0]), 'Every server-rendered card button has a name (the JS template gets it from archive.js).');
+        self::assertStringContainsString('id="tryon-close" aria-label="Close the try-on list"', $archive);
+
+        $item = $this->http('GET', '/item.php?id=' . self::$archiveItemId)['body'];
+        self::assertStringContainsString('aria-label="Try this on: Access test archive item"', $item);
+        self::assertStringContainsString('id="tryon-close"', $item);
+    }
+
     public function testStaffScreenLinkOnlyForLoggedInStaff(): void
     {
         $customerPages = ['/', '/request.php?id=' . self::$requestId];

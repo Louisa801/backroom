@@ -168,7 +168,7 @@ require __DIR__ . '/../../templates/header.php';
             <?php foreach (Intake::PAYOUT_TYPES as $value => $label): ?>
                 <label class="radio" for="payout-<?= e(str_replace('_', '-', $value)) ?>">
                     <input type="radio" id="payout-<?= e(str_replace('_', '-', $value)) ?>" name="payout_type" value="<?= e($value) ?>" <?= $payoutType === $value ? 'checked' : '' ?>>
-                    <span><?= e($label) ?><?= $value === 'store_credit' ? ' (cash × 1.2)' : '' ?></span>
+                    <span><?= e($label) ?><span class="payout__amount" data-payout-amount="<?= e($value) ?>"><?= $value === 'store_credit' ? ' (cash × 1.2)' : '' ?></span></span>
                 </label>
             <?php endforeach; ?>
         </div>

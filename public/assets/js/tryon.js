@@ -162,14 +162,20 @@
       const on = has(Number(button.dataset.id));
       button.setAttribute('aria-pressed', on ? 'true' : 'false');
       button.disabled = !on && full;
-      button.textContent = on ? 'On your list ✓' : (full ? 'List full' : 'Try this on');
+      const label = on ? 'On your list ✓' : (full ? 'List full' : 'Try this on');
+      button.textContent = label;
+      // A unique name for screen readers, starting with the visible text: "Try this on: Wool coat".
+      if (button.dataset.title) button.setAttribute('aria-label', label + ': ' + button.dataset.title);
     });
   }
+
+  const chevron = toggle.querySelector('.tryon__chevron');
 
   function openPanel(withRooms) {
     panel.hidden = false;
     rooms.hidden = !withRooms;
     toggle.setAttribute('aria-expanded', 'true');
+    if (chevron) chevron.textContent = '▼';
     if (withRooms) {
       const first = rooms.querySelector('input:checked') || rooms.querySelector('input');
       if (first) first.focus({ preventScroll: true });
@@ -181,6 +187,7 @@
     panel.hidden = true;
     rooms.hidden = true;
     toggle.setAttribute('aria-expanded', 'false');
+    if (chevron) chevron.textContent = '▲';
   }
 
   function showMessage(text) {
@@ -217,6 +224,14 @@
       closePanel();
       render();
     }
+  });
+
+  // The visible close button in the panel (there's no Escape key on a tablet).
+  document.getElementById('tryon-close').addEventListener('click', () => {
+    hideMessage();
+    closePanel();
+    render();
+    if (!root.hidden) toggle.focus();
   });
 
   sendButton.addEventListener('click', () => {

@@ -34,6 +34,8 @@ $action = is_string($_POST['action'] ?? null) ? $_POST['action'] : '';
 $pdo = db();
 $anchor = $action === 'advance' ? '#queue' : '#rooms'; // also where a refused tap lands
 
+$shelf = null; // shown in bold in the message: where to put the item back
+
 try {
     switch ($action) {
         case 'advance':
@@ -53,6 +55,7 @@ try {
         case 'return':
             $result = (new Requests($pdo))->returnItem($requestId, $itemId);
             $text = "{$result['title']} is back in the archive. Put it on shelf {$result['shelf_code']}.";
+            $shelf = $result['shelf_code'];
             $anchor = '#room-' . $result['fitting_room'];
             break;
 
@@ -63,7 +66,7 @@ try {
     if (!empty($result['closed'])) {
         $text .= " Request #$requestId is closed.";
     }
-    $_SESSION['staff_flash'] = ['type' => 'success', 'text' => $text];
+    $_SESSION['staff_flash'] = ['type' => 'success', 'text' => $text, 'shelf' => $shelf];
 } catch (TransitionRefusedException $e) {
     $_SESSION['staff_flash'] = ['type' => 'info', 'text' => $e->getMessage()];
 }

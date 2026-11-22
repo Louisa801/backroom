@@ -43,6 +43,8 @@ test('staff: fetch, ready, sold and back to archive; the request closes', async 
   const room = staff.locator('#room-2');
   await room.getByRole('button', { name: `Sold: ${SOLD}` }).click();
   await expect(staff.locator('#staff-flash')).toHaveText(`Sold: ${SOLD} (€28.00).`);
+  // The message is on screen even though the page jumped to the fitting room (UI review S1).
+  await expect(staff.locator('[data-toast]')).toBeInViewport();
 
   await staff.locator('#room-2').getByRole('button', { name: `Back to archive: ${RETURNED}` }).click();
   await expect(staff.locator('#staff-flash')).toContainText(`${RETURNED} is back in the archive. Put it on shelf`);

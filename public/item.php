@@ -56,6 +56,7 @@ require __DIR__ . '/../templates/header.php';
         </p>
         <p class="item-detail__price"><?= e(format_price($item['sale_price'])) ?></p>
         <button type="button" class="button button--large item-detail__tryon" data-tryon aria-pressed="false"
+                aria-label="Try this on: <?= e($item['title']) ?>"
                 data-id="<?= e($item['id']) ?>" data-title="<?= e($item['title']) ?>"
                 data-size="<?= e($item['size']) ?>" data-photo="<?= e($item['photo_url']) ?>">Try this on</button>
         <p class="item-detail__note">Add up to <?= Requests::MAX_ITEMS ?> items to your try-on list, then send it to a fitting room.</p>

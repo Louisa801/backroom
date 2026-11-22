@@ -20,7 +20,10 @@ test('buy-in with a real photo appears in the archive with its photo', async ({ 
   await page.getByLabel('Purchase price (€)').fill('12,50');
   await page.getByLabel('Sale price (€)').fill('45');
   await expect(page.getByLabel('Shelf code')).toHaveValue(/^[A-Z]-\d{2}$/); // next free spot suggested
-  await page.getByRole('radio', { name: 'Cash', exact: true }).check();
+  // The amounts are on the choices themselves (UI review): "Cash · €12.50", "Store credit · €15.00".
+  await expect(page.getByRole('radio', { name: 'Cash · €12.50' })).toBeVisible();
+  await expect(page.getByRole('radio', { name: 'Store credit · €15.00' })).toBeVisible();
+  await page.getByRole('radio', { name: /^Cash/ }).check();
   await expect(page.locator('#payout-total')).toHaveText('Pay out €12.50 in cash.');
 
   await page.getByRole('button', { name: 'Save buy-in' }).click();

@@ -7,11 +7,7 @@
  * @var array<int, list<array>> $rooms  Requests::fittingRooms()
  * @var string $csrf
  */
-$waiting = static fn (int $minutes): string => match (true) {
-    $minutes < 1  => 'just now',
-    $minutes === 1 => 'waiting 1 min',
-    default        => "waiting $minutes min",
-};
+$waiting = 'format_waiting'; // src/helpers.php: "waiting 2 h 23 min"
 $hidden = static fn (string $name, string|int $value): string =>
     '<input type="hidden" name="' . e($name) . '" value="' . e($value) . '">';
 $version = md5(json_encode([$queue, $rooms]));
