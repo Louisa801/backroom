@@ -89,9 +89,10 @@ Checked 2026-11-20. Page: `/staff/login.php`. Demo login: `staff@backroom.test` 
 | ✓ | Opening `/staff/`, `/staff/intake.php` or `/manager/` without a login goes to the login page; after logging in you are back on the page you opened. |
 | ✓ | A wrong password and an unknown email both show "Email or password is incorrect." |
 | ✓ | After 5 wrong attempts, even the right password says "Too many attempts. Please wait a minute and try again."; a minute later it works. |
-| ✓ | The staff header shows your name and a "Log out" button; the menu links Queue & rooms, Buy-in and Dashboard on every staff screen. |
+| ✓ | The staff header is one row on every staff screen: "Backroom", the menu (Queue & rooms · Buy-in · Dashboard) and on the right your name and "Log out", vertically centred. From 1,500px wide the menu starts at the same left edge as the page content; from 900 to 1,499px it follows "Backroom". |
+| ✓ | Below 900px the header shows "Backroom" and a "☰ Menu" button. The button opens a dropdown with the three screens (current one highlighted), then your name and "Log out". It closes with the button, Escape (focus back on the button), a tap outside, or choosing a page. It works with the keyboard (Tab, Enter/Space) and every row is at least 44px tall. |
 | ✓ | "Log out" ends the session: the staff pages need a login again, and the login page says "You are logged out." |
 | ✓ | A buy-in records who was logged in: `psql $env:DATABASE_URL -c "SELECT b.id, s.name FROM buy_ins b JOIN staff_users s ON s.id = b.staff_id ORDER BY b.id DESC LIMIT 1"` |
 | ✓ | The customer tablet still needs no login: archive, try-on list, request status and photos work in a private window. |
 | ✓ | On the staff board, the 10-second refresh keeps working while logged in; after logging out in another tab, the board goes to the login page. |
-| ✓ | At 375px the login form and the staff header (name, Log out, menu) fit and are easy to tap. |
+| ✓ | At 375px the login form and the staff header (Backroom, ☰ Menu) fit, nothing overlaps and nothing scrolls sideways. |

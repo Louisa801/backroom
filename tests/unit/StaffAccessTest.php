@@ -353,7 +353,35 @@ final class StaffAccessTest extends TestCase
             $response = $this->http('GET', $url, jar: $jar);
             self::assertSame(200, $response['status'], "$url after logging in");
         }
-        self::assertStringContainsString('Logged in as ' . self::NAME, $this->http('GET', '/staff/', jar: $jar)['body'], 'The header shows who is logged in.');
+        $board = $this->http('GET', '/staff/', jar: $jar)['body'];
+        self::assertMatchesRegularExpression(
+            '#class="staff-user__name"><span class="visually-hidden">Logged in as </span>' . preg_quote(self::NAME, '#') . '</span>#',
+            $board,
+            'The header shows the name (with "Logged in as" for screen readers).'
+        );
+    }
+
+    public function testStaffHeaderHasAnAccessibleMenuButton(): void
+    {
+        $jar = $this->browser();
+        $this->logIn($jar);
+
+        foreach (['/staff/' => '/staff/', '/staff/intake.php' => '/staff/intake.php', '/manager/' => '/manager/'] as $url => $current) {
+            $body = $this->http('GET', $url, jar: $jar)['body'];
+
+            self::assertMatchesRegularExpression('#<button type="button" class="staff-menu-button" aria-expanded="false" aria-controls="staff-menu">#', $body, "$url: menu button");
+            self::assertStringContainsString('</span> Menu', $body, "$url: the button is labelled Menu");
+
+            // The panel holds the three screens and the Log out form.
+            preg_match('#<div class="staff-menu" id="staff-menu">(.*?)</div>\s*</header>#s', $body, $panel);
+            self::assertNotEmpty($panel, "$url: menu panel");
+            foreach (['/staff/', '/staff/intake.php', '/manager/'] as $link) {
+                self::assertStringContainsString('href="' . $link . '"', $panel[1], "$url: link to $link");
+            }
+            self::assertStringContainsString('action="/staff/logout.php"', $panel[1]);
+            self::assertStringContainsString('href="' . $current . '" aria-current="page"', $panel[1], "$url: current page marked");
+            self::assertSame(1, substr_count($panel[1], 'aria-current="page"'), "$url: one current page");
+        }
     }
 
     public function testLoginNeverRedirectsToAnotherSite(): void

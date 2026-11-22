@@ -769,61 +769,149 @@ body.has-tryon .page {
   border-left: 4px solid var(--ink-soft);
 }
 
-/* ---------- Staff menu ---------- */
+/* ---------- Staff header: one row; a ☰ dropdown below 900px (staff-menu.js) ---------- */
 
 .site-header {
   flex-wrap: wrap;
 }
 
-/* Staff header: row 1 = brand (left) + logged-in user (right); row 2 = menu, aligned with the page content. */
 .site-header--staff {
-  display: block;
-  padding: 0;
+  position: relative;              /* the dropdown and the wide-screen menu are placed against it */
+  flex-wrap: nowrap;
+  gap: var(--s3);
 }
 
-.site-header__top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s2) var(--s3);
-  padding: var(--s2) var(--s3);
-}
-
-.staff-nav {
-  border-top: 1px solid rgba(245, 239, 228, 0.15);
-}
-
-.staff-nav__inner {
-  max-width: 1200px;               /* same as .page */
-  margin: 0 auto;
-  padding: 0 var(--s3);            /* same side padding as .page */
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 var(--s4);
-}
-
-.staff-nav a {
+.staff-menu-button {
   display: inline-flex;
   align-items: center;
+  gap: var(--s2);
   min-height: var(--tap);
-  padding: 0;                      /* text starts exactly at the content edge */
+  min-width: var(--tap);
+  padding: 0 var(--s3);
+  border: 2px solid var(--bg);
   border-radius: var(--radius);
+  background: transparent;
   color: var(--bg);
+  font: inherit;
   font-weight: 700;
-  text-decoration: none;
+  cursor: pointer;
 }
 
-.staff-nav a[aria-current='page'] {
-  text-decoration: underline;
-  text-underline-offset: 6px;
-  text-decoration-thickness: 2px;
+.staff-menu-button__icon {
+  font-size: 1.25rem;
+  line-height: 1;
 }
 
+.staff-menu-button:focus-visible,
 .staff-nav a:focus-visible {
   outline-color: var(--bg);
 }
 
+/* Small screens: the dropdown panel under the bar. */
+.staff-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: var(--s2) 0 var(--s3);
+  background: var(--ink);
+  border-top: 1px solid rgba(245, 239, 228, 0.15);
+  box-shadow: 0 8px 16px rgba(43, 33, 28, 0.3);
+}
+
+html.js .staff-menu:not(.is-open) {
+  display: none;
+}
+
+/* Without JavaScript: no button, the menu is a plain list in the header. */
+html:not(.js) .staff-menu-button {
+  display: none;
+}
+
+html:not(.js) .site-header--staff {
+  flex-wrap: wrap;
+}
+
+html:not(.js) .staff-menu {
+  position: static;
+  flex-basis: 100%;
+  box-shadow: none;
+}
+
+.staff-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.staff-nav a {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 var(--s3);
+  border-left: 4px solid transparent;
+  color: var(--bg);
+  text-decoration: none;
+}
+
+.staff-nav a[aria-current='page'] {
+  font-weight: 700;
+  border-left-color: #E9A27F;      /* light terracotta, 7.5:1 on the dark header */
+  background: rgba(245, 239, 228, 0.08);
+}
+
+/* Wide enough for one row: menu after "Backroom", name and Log out on the right. */
+@media (min-width: 900px) {
+  .site-header--staff {
+    gap: var(--s4);
+  }
+
+  .staff-menu-button {
+    display: none;
+  }
+
+  .staff-menu,
+  html.js .staff-menu:not(.is-open) {
+    position: static;
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s4);
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .staff-nav {
+    flex-direction: row;
+    gap: var(--s4);
+  }
+
+  .staff-nav a {
+    padding: 0;
+    border-left: 0;
+    font-weight: 700;
+  }
+
+  .staff-nav a[aria-current='page'] {
+    background: none;
+    text-decoration: underline;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 2px;
+  }
+}
+
+/* Room for "Backroom" plus a gap before the content edge: the menu starts where the content starts. */
+@media (min-width: 1500px) {
+  .staff-nav {
+    position: absolute;
+    top: 50%;
+    left: calc((100% - 1200px) / 2 + var(--s4));   /* same edge as .page (max 1200px, 24px padding) */
+    transform: translateY(-50%);
+  }
+}
 /* ---------- Customer footer: a quiet way in for staff ---------- */
 
 .site-footer {
@@ -860,12 +948,21 @@ body.has-tryon .page {
 
 .staff-user {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
-  gap: var(--s2) var(--s3);
-  margin-left: auto;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-top: var(--s2);
+  padding: var(--s3) var(--s3) 0;
+  border-top: 1px solid rgba(245, 239, 228, 0.15);
   color: var(--bg);
+}
+
+@media (min-width: 900px) {
+  .staff-user {
+    margin: 0 0 0 auto;            /* always on the right, also when the menu is placed on its own (≥1500px) */
+    padding: 0;
+    border: 0;
+  }
 }
 
 /* Quiet: normal weight, softer colour (#D8CDBB on the dark header is about 10:1). */
@@ -873,7 +970,6 @@ body.has-tryon .page {
   font-weight: 400;
   color: #D8CDBB;
 }
-
 .staff-user__logout {
   min-height: var(--tap);
   padding: 0 var(--s3);
@@ -1295,10 +1391,6 @@ body.has-tryon .page {
 @media (min-width: 768px) {
   .page {
     padding: var(--s5) var(--s4) var(--s6);
-  }
-
-  .staff-nav__inner {
-    padding: 0 var(--s4);          /* follows .page */
   }
 
   .page__title {

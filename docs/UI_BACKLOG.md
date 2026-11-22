@@ -11,6 +11,13 @@ Ideas noted after M1, not built yet:
 3. **"Clear filters" only when a filter is active.** At the moment the button is always visible.
 4. **Bigger cards on wide screens.** The cards stay at about 200px wide on a laptop; they could grow with the screen.
 
+### Added later: staff header
+
+The mockups show no staff header. The staff and manager screens have one row: "Backroom", the menu (Queue & rooms · Buy-in · Dashboard), then the staff member's name and "Log out".
+- **From 1,500px wide,** the menu starts at the same left edge as the page content.
+- **From 900 to 1,499px,** it follows "Backroom", because there is no room for both: at 1,280px the content starts at 64px and "Backroom" ends at about 140px.
+- **Below 900px,** a "☰ Menu" button opens a dropdown with the same links, the name and "Log out".
+
 ### Added later: "Staff" link in the footer
 
 The customer pages (archive and request status) have a small "Staff" link at the bottom right, linking to `/staff/login.php`. The mockups have no footer. It gives staff a way in from the shared tablet without typing a URL. It's muted so customers don't notice it, but still 16px, 7.3:1 contrast and a 44px tap target (CLAUDE.md UI rules). Staff pages don't show it.
