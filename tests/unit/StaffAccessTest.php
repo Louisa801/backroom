@@ -292,6 +292,20 @@ final class StaffAccessTest extends TestCase
         }
     }
 
+    public function testCustomerPagesHaveAQuietStaffLinkStaffPagesDont(): void
+    {
+        foreach (['/', '/request.php?id=' . self::$requestId] as $url) {
+            self::assertStringContainsString('href="/staff/login.php">Staff</a>', $this->http('GET', $url)['body'], "$url links to the staff login.");
+        }
+
+        $jar = $this->browser();
+        $this->logIn($jar);
+        foreach (['/staff/', '/staff/intake.php', '/manager/', '/staff/login.php'] as $url) {
+            $body = $this->http('GET', $url, jar: $jar)['body'];
+            self::assertStringNotContainsString('class="site-footer"', $body, "$url is a staff page: no customer footer.");
+        }
+    }
+
     // ---------------- login ----------------
 
     public function testWrongPasswordAndUnknownEmailLookTheSame(): void
@@ -339,7 +353,7 @@ final class StaffAccessTest extends TestCase
             $response = $this->http('GET', $url, jar: $jar);
             self::assertSame(200, $response['status'], "$url after logging in");
         }
-        self::assertStringContainsString(self::NAME, $this->http('GET', '/staff/', jar: $jar)['body'], 'The header shows who is logged in.');
+        self::assertStringContainsString('Logged in as ' . self::NAME, $this->http('GET', '/staff/', jar: $jar)['body'], 'The header shows who is logged in.');
     }
 
     public function testLoginNeverRedirectsToAnotherSite(): void

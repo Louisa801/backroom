@@ -11,6 +11,10 @@ Ideas noted after M1, not built yet:
 3. **"Clear filters" only when a filter is active.** At the moment the button is always visible.
 4. **Bigger cards on wide screens.** The cards stay at about 200px wide on a laptop; they could grow with the screen.
 
+### Added later: "Staff" link in the footer
+
+The customer pages (archive and request status) have a small "Staff" link at the bottom right, linking to `/staff/login.php`. The mockups have no footer. It gives staff a way in from the shared tablet without typing a URL. It's muted so customers don't notice it, but still 16px, 7.3:1 contrast and a 44px tap target (CLAUDE.md UI rules). Staff pages don't show it.
+
 ## M4/M6: Fetch queue and fitting rooms (mockup `3-staff.png`)
 
 Deviations in the build:

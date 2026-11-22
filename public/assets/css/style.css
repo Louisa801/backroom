@@ -802,6 +802,38 @@ body.has-tryon .page {
   outline-color: var(--bg);
 }
 
+/* ---------- Customer footer: a quiet way in for staff ---------- */
+
+.site-footer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--s3) var(--s4);
+  text-align: right;
+}
+
+/* Room for the fixed try-on bar, so it never covers the link. */
+body.has-tryon .site-footer {
+  padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+}
+
+body.has-tryon .page {
+  padding-bottom: var(--s4);
+}
+
+.site-footer__staff {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 var(--s2);
+  color: var(--ink-soft);      /* muted, still 7.3:1 on the background */
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.site-footer__staff:hover {
+  text-decoration: underline;
+}
+
 /* ---------- Login and the logged-in staff member ---------- */
 
 .staff-user {
@@ -811,8 +843,10 @@ body.has-tryon .page {
   color: var(--bg);
 }
 
+/* Quiet: normal weight, softer colour (#D8CDBB on the dark header is about 10:1). */
 .staff-user__name {
-  font-weight: 700;
+  font-weight: 400;
+  color: #D8CDBB;
 }
 
 .staff-user__logout {

@@ -23,7 +23,7 @@
         <?php $staffMember = current_staff(); ?>
         <?php if ($staffMember !== null): ?>
             <form class="staff-user" method="post" action="/staff/logout.php">
-                <span class="staff-user__name"><?= e($staffMember['name']) ?></span>
+                <span class="staff-user__name">Logged in as <?= e($staffMember['name']) ?></span>
                 <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                 <button type="submit" class="staff-user__logout">Log out</button>
             </form>

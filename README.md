@@ -6,11 +6,11 @@ A second-hand clothing shop with a coffee bar up front and the stock in a back-r
 
 The staff and manager screens need a login; the customer tablet (`/`) doesn't. Log in at `/staff/login.php`, or just open `/staff/` or `/manager/` and you are sent there and back.
 
-| Email | Password |
-|---|---|
-| `staff@backroom.test` | `backroom-demo` |
+| Name | Email | Password |
+|---|---|---|
+| Louisa | `staff@backroom.test` | `backroom-demo` |
 
-This user comes from `sql/seed.sql`. It is for local development and the demo only.
+This user comes from `sql/seed.sql`. It is for local development and the demo only. The staff header shows "Logged in as Louisa" next to "Log out".
 
 - After 5 wrong attempts for an email, wait 1 minute before trying again.
 - You are logged out after 8 hours without activity, or with "Log out" in the header.

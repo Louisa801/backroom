@@ -31,7 +31,7 @@ CREATE FUNCTION pg_temp.today(minutes_ago INTEGER) RETURNS TIMESTAMPTZ
 -- Staff (password: backroom-demo, hashed with PHP password_hash)
 -- ---------------------------------------------------------------------------
 INSERT INTO staff_users (id, email, password_hash, name) VALUES
-(1, 'staff@backroom.test', '$2y$10$5FvRoUrmmDM1JVk7w4z9P.yXfMKKjHIA3gNoP7e6vDplUVNKvmsW2', 'Demo Staff');
+(1, 'staff@backroom.test', '$2y$10$5FvRoUrmmDM1JVk7w4z9P.yXfMKKjHIA3gNoP7e6vDplUVNKvmsW2', 'Louisa');
 
 -- ---------------------------------------------------------------------------
 -- Categories
