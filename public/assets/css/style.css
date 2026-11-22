@@ -775,17 +775,39 @@ body.has-tryon .page {
   flex-wrap: wrap;
 }
 
-.staff-nav {
+/* Staff header: row 1 = brand (left) + logged-in user (right); row 2 = menu, aligned with the page content. */
+.site-header--staff {
+  display: block;
+  padding: 0;
+}
+
+.site-header__top {
   display: flex;
-  gap: var(--s1);
-  margin-left: auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2) var(--s3);
+  padding: var(--s2) var(--s3);
+}
+
+.staff-nav {
+  border-top: 1px solid rgba(245, 239, 228, 0.15);
+}
+
+.staff-nav__inner {
+  max-width: 1200px;               /* same as .page */
+  margin: 0 auto;
+  padding: 0 var(--s3);            /* same side padding as .page */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--s4);
 }
 
 .staff-nav a {
   display: inline-flex;
   align-items: center;
   min-height: var(--tap);
-  padding: 0 var(--s2);
+  padding: 0;                      /* text starts exactly at the content edge */
   border-radius: var(--radius);
   color: var(--bg);
   font-weight: 700;
@@ -838,8 +860,11 @@ body.has-tryon .page {
 
 .staff-user {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--s2);
+  justify-content: flex-end;
+  gap: var(--s2) var(--s3);
+  margin-left: auto;
   color: var(--bg);
 }
 
@@ -1270,6 +1295,10 @@ body.has-tryon .page {
 @media (min-width: 768px) {
   .page {
     padding: var(--s5) var(--s4) var(--s6);
+  }
+
+  .staff-nav__inner {
+    padding: 0 var(--s4);          /* follows .page */
   }
 
   .page__title {

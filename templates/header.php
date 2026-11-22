@@ -12,14 +12,10 @@
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body<?= !empty($bodyClass) ? ' class="' . e($bodyClass) . '"' : '' ?>>
-<header class="site-header">
-    <a class="site-header__brand" href="/">Backroom</a>
-    <?php if (!empty($staffNav)): ?>
-        <nav class="staff-nav" aria-label="Staff">
-            <a href="/staff/"<?= $staffNav === 'board' ? ' aria-current="page"' : '' ?>>Queue &amp; rooms</a>
-            <a href="/staff/intake.php"<?= $staffNav === 'intake' ? ' aria-current="page"' : '' ?>>Buy-in</a>
-            <a href="/manager/"<?= $staffNav === 'dashboard' ? ' aria-current="page"' : '' ?>>Dashboard</a>
-        </nav>
+<?php if (!empty($staffNav)): ?>
+<header class="site-header site-header--staff">
+    <div class="site-header__top">
+        <a class="site-header__brand" href="/">Backroom</a>
         <?php $staffMember = current_staff(); ?>
         <?php if ($staffMember !== null): ?>
             <form class="staff-user" method="post" action="/staff/logout.php">
@@ -28,8 +24,22 @@
                 <button type="submit" class="staff-user__logout">Log out</button>
             </form>
         <?php endif; ?>
-    <?php elseif (!empty($headerNote)): ?>
+    </div>
+    <nav class="staff-nav" aria-label="Staff">
+        <!-- Same width and side padding as .page, so the menu starts where the content starts. -->
+        <div class="staff-nav__inner">
+            <a href="/staff/"<?= $staffNav === 'board' ? ' aria-current="page"' : '' ?>>Queue &amp; rooms</a>
+            <a href="/staff/intake.php"<?= $staffNav === 'intake' ? ' aria-current="page"' : '' ?>>Buy-in</a>
+            <a href="/manager/"<?= $staffNav === 'dashboard' ? ' aria-current="page"' : '' ?>>Dashboard</a>
+        </div>
+    </nav>
+</header>
+<?php else: ?>
+<header class="site-header">
+    <a class="site-header__brand" href="/">Backroom</a>
+    <?php if (!empty($headerNote)): ?>
         <span class="site-header__note"><?= e($headerNote) ?></span>
     <?php endif; ?>
 </header>
+<?php endif; ?>
 <main class="page">
