@@ -95,5 +95,5 @@ Checked 2026-11-20. Page: `/staff/login.php`. Demo login: `staff@backroom.test` 
 | ✓ | A buy-in records who was logged in: `psql $env:DATABASE_URL -c "SELECT b.id, s.name FROM buy_ins b JOIN staff_users s ON s.id = b.staff_id ORDER BY b.id DESC LIMIT 1"` |
 | ✓ | The customer tablet still needs no login: archive, try-on list, request status and photos work in a private window. |
 | ✓ | On the staff board, the 10-second refresh keeps working while logged in; after logging out in another tab, the board goes to the login page. |
-|   | "Archive" in the staff menu opens the customer archive; there a logged-in staff member sees "← Staff screen" in the header, which goes back to the staff screen. In a private window (not logged in) the archive and request pages show no "Staff screen" link. |
+| ✓ | "Archive" in the staff menu opens the customer archive; there a logged-in staff member sees "← Staff screen" in the header, which goes back to the staff screen. In a private window (not logged in) the archive and request pages show no "Staff screen" link. |
 | ✓ | At 375px the login form and the staff header (Backroom, ☰ Menu) fit, nothing overlaps and nothing scrolls sideways. |
