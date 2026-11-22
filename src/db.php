@@ -1,8 +1,13 @@
 <?php
 declare(strict_types=1);
 
+/** sslmode values PostgreSQL understands; other values in the URL are refused. */
+const DATABASE_SSLMODES = ['disable', 'allow', 'prefer', 'require', 'verify-ca', 'verify-full'];
+
 /**
- * Turn a DATABASE_URL (postgres://user:pass@host:port/dbname) into PDO settings.
+ * Turn a DATABASE_URL (postgres://user:pass@host:port/dbname[?sslmode=require]) into PDO settings.
+ * Render's internal URL has no port and no sslmode; its external URL needs sslmode=require.
+ * Other query parameters are ignored.
  *
  * @return array{dsn: string, user: string, password: string}
  */
@@ -20,9 +25,18 @@ function database_config(string $url): array
 
     $port = $parts['port'] ?? 5432;
     $dbname = rawurldecode(trim($parts['path'], '/'));
+    $dsn = sprintf('pgsql:host=%s;port=%d;dbname=%s', $parts['host'], $port, $dbname);
+
+    parse_str($parts['query'] ?? '', $query);
+    if (isset($query['sslmode'])) {
+        if (!is_string($query['sslmode']) || !in_array($query['sslmode'], DATABASE_SSLMODES, true)) {
+            throw new InvalidArgumentException('DATABASE_URL has an unknown sslmode. Use for example ?sslmode=require');
+        }
+        $dsn .= ';sslmode=' . $query['sslmode'];
+    }
 
     return [
-        'dsn'      => sprintf('pgsql:host=%s;port=%d;dbname=%s', $parts['host'], $port, $dbname),
+        'dsn'      => $dsn,
         'user'     => rawurldecode($parts['user']),
         'password' => rawurldecode($parts['pass'] ?? ''),
     ];

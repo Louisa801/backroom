@@ -1,0 +1,17 @@
+# Not part of the Docker image (see Dockerfile).
+.git
+.gitattributes
+.gitignore
+vendor
+node_modules
+tests
+test-results
+playwright-report
+.phpunit.cache
+docs
+.vscode
+.claude
+package.json
+package-lock.json
+playwright.config.js
+phpunit.xml

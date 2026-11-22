@@ -31,6 +31,31 @@ final class DbConfigTest extends TestCase
         self::assertSame('pgsql:host=db.example.com;port=6543;dbname=shop', $config['dsn']);
     }
 
+    public function testPassesSslmodeFromTheUrl(): void
+    {
+        // Render's external URL, used with psql and the tests from a laptop.
+        $config = database_config('postgresql://app:pw@dpg-abc123-a.frankfurt-postgres.render.com/backroom_db?sslmode=require');
+
+        self::assertSame('pgsql:host=dpg-abc123-a.frankfurt-postgres.render.com;port=5432;dbname=backroom_db;sslmode=require', $config['dsn']);
+        self::assertSame('pw', $config['password']);
+    }
+
+    public function testIgnoresOtherQueryParameters(): void
+    {
+        $config = database_config('postgresql://app:pw@localhost:5432/shop?application_name=x&sslmode=verify-full');
+        self::assertSame('pgsql:host=localhost;port=5432;dbname=shop;sslmode=verify-full', $config['dsn']);
+
+        $plain = database_config('postgresql://app:pw@localhost:5432/shop?application_name=x');
+        self::assertSame('pgsql:host=localhost;port=5432;dbname=shop', $plain['dsn']);
+    }
+
+    public function testRefusesAnUnknownSslmode(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('unknown sslmode');
+        database_config('postgresql://app:pw@localhost/shop?sslmode=always;host=evil');
+    }
+
     #[DataProvider('badUrls')]
     public function testRejectsMalformedUrl(string $url): void
     {

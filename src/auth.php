@@ -13,6 +13,20 @@ const LOGIN_LOCKED = 'Too many attempts. Please wait a minute and try again.';
 /** Hash of a random string: unknown emails still run password_verify, so they take as long as a wrong password. */
 const DUMMY_PASSWORD_HASH = '$2y$10$wXWNx/3tlEyO.wNrd/sC.ugQxLHFJ.OrKqxG9hQuaPu7ECWvf6pVO';
 
+/**
+ * True when the browser talks HTTPS to us. On Render, HTTPS ends at Render's proxy, which
+ * forwards the request over plain HTTP with "X-Forwarded-Proto: https" (possibly a list
+ * like "https, http"; the first value is the browser's).
+ */
+function request_is_https(array $server): bool
+{
+    if (!empty($server['HTTPS']) && strtolower((string) $server['HTTPS']) !== 'off') {
+        return true;
+    }
+    $forwarded = (string) ($server['HTTP_X_FORWARDED_PROTO'] ?? '');
+    return strtolower(trim(explode(',', $forwarded)[0])) === 'https';
+}
+
 /** Start the session with safe cookie settings (once per request). */
 function start_session(): void
 {
@@ -20,8 +34,7 @@ function start_session(): void
         return;
     }
 
-    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'); // Render terminates HTTPS at its proxy
+    $https = request_is_https($_SERVER); // then the cookie gets the Secure flag
 
     ini_set('session.use_strict_mode', '1');
     ini_set('session.use_only_cookies', '1');

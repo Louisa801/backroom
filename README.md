@@ -10,7 +10,9 @@ The staff and manager screens need a login; the customer tablet (`/`) doesn't. L
 |---|---|---|
 | Louisa | `staff@backroom.test` | `backroom-demo` |
 
-This user comes from `sql/seed.sql`. It is for local development and the demo only. The staff header shows "Logged in as Louisa" next to "Log out".
+This user comes from `sql/seed.sql`. It is for local development and the demo only. The staff header shows "Louisa" next to "Log out".
+
+**On Render the password is different:** it is changed right after loading the demo data (see "Deploy to Render", step 4) and is not written anywhere in this repository.
 
 - After 5 wrong attempts for an email, wait 1 minute before trying again.
 - You are logged out after 8 hours without activity, or with "Log out" in the header.
@@ -74,6 +76,98 @@ Run (PowerShell):
 - see the HTML report (with screenshots and traces of failures): `npx playwright show-report`
 
 The demo data uses dates relative to the moment you reset, so the dashboard always shows figures for today and this week. Reset again before a demo.
+
+## Deploy to Render
+
+The app runs on [Render](https://render.com) as a **Docker web service** (the `Dockerfile` in this repo: PHP 8.3 with Apache, web root `public/`) with a **Render PostgreSQL 17** database. Both on the free plan, in the same region. All commands below are for PowerShell on your laptop.
+
+What the image already takes care of:
+- **PHP:** `pdo_pgsql`, GD (JPEG, PNG and WebP), EXIF, and the upload and memory limits from `docker/php.ini`.
+- **Port:** Apache listens on the port Render gives in `PORT` (10000 by default).
+- **HTTPS:** Render handles HTTPS. The app sees it through the `X-Forwarded-Proto` header, so the session cookie gets the Secure flag.
+- **Time zone:** the server runs in UTC. "Today" and "this week" on the dashboard are still Porto time (`Europe/Lisbon`), worked out in `src/Dashboard.php`.
+- **Photos:** the seed placeholder photos (`public/assets/uploads/seed/`) are in git and in the image. Uploaded photos are stored in the database, so a restart doesn't lose them.
+
+### 1. Push the code
+
+Render builds from GitHub, so first make sure `main` is pushed:
+
+```powershell
+git push
+```
+
+### 2. Create the database
+
+1. In the Render dashboard: **New → Postgres**.
+2. Fill in:
+   - **Name:** `backroom-db`
+   - **Database:** `backroom`
+   - **User:** `backroom`
+   - **Region:** **Frankfurt (EU Central)**
+   - **PostgreSQL version:** **17**
+   - **Plan:** **Free**
+3. **Create Database**, and wait until its status is *Available*.
+4. On the database page, under **Connections**, copy two addresses:
+   - **Internal Database URL**, for the web service (step 5)
+   - **External Database URL**, for loading data from your laptop (steps 3 and 4).
+
+### 3. Load the tables and the demo data
+
+From the repo folder on your laptop. Render requires SSL from outside, hence `?sslmode=require`:
+
+```powershell
+$env:RENDER_DATABASE_URL = '<paste the External Database URL here>?sslmode=require'
+psql $env:RENDER_DATABASE_URL -v ON_ERROR_STOP=1 -q -f sql/schema.sql -f sql/seed.sql
+psql $env:RENDER_DATABASE_URL -c "SELECT count(*) AS items FROM items"
+```
+
+The last command should show `40`. `RENDER_DATABASE_URL` only lives in this PowerShell window and is never saved in the repo.
+
+### 4. Change the staff password (always, right after step 3)
+
+`seed.sql` creates the demo login `staff@backroom.test` / `backroom-demo`, and that password is public in this README. On a public site, replace it straight away. Run this in the same PowerShell window:
+
+```powershell
+$secure = Read-Host 'New staff password' -AsSecureString
+$env:NEW_STAFF_PASSWORD = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure))
+$hash = php -r 'echo password_hash(getenv(''NEW_STAFF_PASSWORD''), PASSWORD_DEFAULT);'
+psql $env:RENDER_DATABASE_URL -c "UPDATE staff_users SET password_hash = '$hash' WHERE email = 'staff@backroom.test'"
+Remove-Item Env:NEW_STAFF_PASSWORD; Remove-Variable secure, hash
+```
+
+It should print `UPDATE 1`. The password is typed without being shown and doesn't end up in your PowerShell history or in the repo; only its hash goes to the database. It goes to PHP through a temporary environment variable, removed straight after, because PowerShell 5.1 can damage quotes when it passes text to another program as an argument.
+
+> **Warning:** loading `seed.sql` again (step 3) **resets the password to the public demo password** `backroom-demo`. Every time you reload the demo data on Render, for example before a demo so the dates are fresh, do step 4 again straight after.
+
+### 5. Create the web service
+
+1. In the Render dashboard: **New → Web Service**, connect GitHub if asked, and choose the repository `Louisa801/backroom`.
+2. Fill in:
+   - **Name:** `backroom`
+   - **Language:** **Docker**
+   - **Branch:** `main`
+   - **Region:** **Frankfurt (EU Central)**. It must be the same region as the database, otherwise the internal URL doesn't work.
+   - **Instance type:** **Free**
+   - **Dockerfile path:** leave the default (`./Dockerfile`).
+3. Under **Environment Variables**, add `DATABASE_URL` with the **Internal Database URL** from step 2. It needs no `sslmode`; the connection stays inside Render.
+4. **Create Web Service.** The first build takes a few minutes; the log ends with Apache starting.
+
+### 6. Check
+
+Open the `https://backroom-….onrender.com` address Render shows:
+
+1. **Archive (`/`):** 27 items with placeholder photos.
+2. **`/staff/login.php`:** log in with `staff@backroom.test` and the new password from step 4. The old demo password must be refused.
+3. **Queue, buy-in and dashboard:** they work. A buy-in with a real photo shows its photo in the archive.
+
+### Updating and good to know
+
+- **Updates:** every `git push` to `main` makes Render build and deploy again (Auto-Deploy). The database and its data stay.
+- **Errors:** PHP errors appear in the web service's **Logs** on Render, never on the page.
+- **Free web service:** it falls asleep after about 15 minutes without visitors, so the first page after that takes up to a minute.
+- **Free database:** it has an expiry date (shown on the database page). Upgrade it or make a new one before then.
+- **Before a demo:** the demo data uses dates relative to the moment it's loaded. To get fresh "today" and "this week" figures, repeat step 3 **and then step 4**.
+- **Local Docker test:** Docker isn't needed for Render. To test the image on a PC with Docker Desktop, run `docker build -t backroom .` and then `docker run --rm -p 10000:10000 -e DATABASE_URL=postgresql://backroom:YOURPASSWORD@host.docker.internal:5432/backroom backroom`, and open http://localhost:10000. Inside the container, `localhost` would be the container itself, which is why the database host is `host.docker.internal`.
 
 ## Demo data at a glance
 
