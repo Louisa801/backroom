@@ -28,12 +28,22 @@
     return params.toString();
   }
 
+  // Link to the detail page, carrying the current filters for its "Back to the archive".
+  function itemUrl(id) {
+    const qs = queryString();
+    return '/item.php?id=' + encodeURIComponent(id) + (qs ? '&' + qs : '');
+  }
+
   function renderCard(item) {
     const card = template.content.firstElementChild.cloneNode(true);
     const img = card.querySelector('.card__photo');
     img.src = item.photo_url;
     img.alt = item.title;
-    card.querySelector('.card__title').textContent = item.title;
+    const url = itemUrl(item.id);
+    card.querySelector('.card__photo-link').href = url;
+    const link = card.querySelector('.card__link');
+    link.href = url;
+    link.textContent = item.title;
     card.querySelector('.card__size').textContent = 'Size ' + item.size;
     card.querySelector('.card__price').textContent = priceFormat.format(Number(item.sale_price));
     const button = card.querySelector('[data-tryon]');

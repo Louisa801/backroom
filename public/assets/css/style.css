@@ -494,6 +494,106 @@ a {
   padding: var(--s1) var(--s2);
 }
 
+/* ---------- Card links to the item page ---------- */
+
+.card__photo-link {
+  display: block;
+}
+
+.card__link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.card__link:hover {
+  text-decoration: underline;
+}
+
+/* The whole title line is easy to tap (44px). */
+.card__title .card__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+}
+
+/* ---------- Item detail (docs/mockups/2-tryon.png) ---------- */
+
+.item-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s4);
+}
+
+.item-detail__photo img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: var(--line);
+}
+
+.item-detail__info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s2);
+}
+
+.item-detail__back {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.item-detail__back:hover {
+  text-decoration: underline;
+}
+
+.item-detail__title {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.item-detail__meta {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.item-detail__price {
+  margin: var(--s2) 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.item-detail__info .button--large {
+  width: 100%;
+}
+
+.item-detail__tryon[aria-pressed='true'] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+
+.item-detail__note {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+@media (min-width: 768px) {
+  .item-detail {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--s5);
+    align-items: start;
+  }
+
+  .item-detail__title {
+    font-size: 2.25rem;
+  }
+}
+
 /* ---------- M2: "Try this on" and the try-on list ---------- */
 
 .button--small {

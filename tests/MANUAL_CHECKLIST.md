@@ -97,3 +97,16 @@ Checked 2026-11-20. Page: `/staff/login.php`. Demo login: `staff@backroom.test` 
 | ✓ | On the staff board, the 10-second refresh keeps working while logged in; after logging out in another tab, the board goes to the login page. |
 | ✓ | "Archive" in the staff menu opens the customer archive; there a logged-in staff member sees "← Staff screen" in the header, which goes back to the staff screen. In a private window (not logged in) the archive and request pages show no "Staff screen" link. |
 | ✓ | At 375px the login form and the staff header (Backroom, ☰ Menu) fit, nothing overlaps and nothing scrolls sideways. |
+
+## Item detail
+
+Checked 2026-11-22. Page: `/item.php?id=` (open it by clicking a card's photo or title). Compare with `docs/mockups/2-tryon.png` (deviations are listed in `docs/UI_BACKLOG.md`).
+
+| ✓ | Check |
+|---|---|
+| ✓ | Clicking a card's photo or title opens the item page, also after changing a filter (cards redrawn without reloading). The "Try this on" button on the card still works without opening the page. |
+| ✓ | The item page shows a large photo, title, category, size, colour, condition and price; no shelf code. |
+| ✓ | "Try this on" on the item page adds the item to the try-on bar ("On your list ✓"); pressing again removes it; with 5 items it says "List full". The list can be sent from this page too. |
+| ✓ | "← Back to the archive" returns to the archive with the same filters as before. |
+| ✓ | An item that was just requested or sold (e.g. `/item.php?id=12` after a reset) shows "This item has just been taken" with a working "Back to the archive" button, no error. |
+| ✓ | At 375px: photo full width, then the details, nothing scrolls sideways. On a laptop: photo left, details right. |

@@ -38,6 +38,7 @@ A try-on request has its own status: `new` → `fetching` → `ready` → `close
 - Results update without reloading the page.
 - Each card shows photo, title, size and price.
 - Empty result shows a friendly "nothing found" message.
+- Item detail (`/item.php?id=`): the photo and title of a card open it. It shows a large photo, title, category, size, colour, condition and price, never the shelf code. It has the same "Try this on" toggle as the cards (same try-on list and 5-item limit) and a "Back to the archive" link that keeps the customer's filters. An item that is no longer `in_archive` (or doesn't exist) shows a friendly "This item has just been taken" message with a link back, never an error.
 
 ### M2 — Request a try-on
 *As a customer, I want to send items to a fitting room, so I can try them on without searching the shop.*

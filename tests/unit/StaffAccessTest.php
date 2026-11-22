@@ -30,6 +30,8 @@ final class StaffAccessTest extends TestCase
     private static int $itemId = 0;
     private static int $requestId = 0;
     private static int $photoId = 0;
+    private static int $archiveItemId = 0;
+    private static string $archiveShelf = '';
     /** @var list<string> */
     private static array $tempFiles = [];
 
@@ -83,6 +85,17 @@ final class StaffAccessTest extends TestCase
         );
         $stmt->execute([self::$buyInId, self::$photoId, $shelf]);
         self::$itemId = (int) $stmt->fetchColumn();
+
+        // An item still in the archive, for the public item page.
+        $shelf2 = Intake::suggestShelfCodes((new Intake($pdo))->takenShelfCodes())[0];
+        $stmt = $pdo->prepare(
+            "INSERT INTO items (buy_in_id, category_id, title, size, colour, condition, purchase_price, sale_price, photo_path, shelf_code, status)
+             VALUES (?, (SELECT min(id) FROM categories), 'Access test archive item', 'M', 'navy', 'like_new', 10, 33, 'assets/test.svg', ?, 'in_archive') RETURNING id"
+        );
+        $stmt->execute([self::$buyInId, $shelf2]);
+        self::$archiveItemId = (int) $stmt->fetchColumn();
+        self::$archiveShelf = $shelf2;
+
         self::$requestId = (int) $pdo->query("INSERT INTO tryon_requests (fitting_room, status) VALUES (1, 'new') RETURNING id")->fetchColumn();
         $pdo->exec('INSERT INTO request_items (request_id, item_id) VALUES (' . self::$requestId . ', ' . self::$itemId . ')');
     }
@@ -280,16 +293,59 @@ final class StaffAccessTest extends TestCase
             '/api/items.php',
             '/api/requests.php?id=' . self::$requestId,
             '/photo.php?id=' . self::$photoId,
+            '/item.php?id=' . self::$archiveItemId,
         ];
-        if (is_file(dirname(__DIR__, 2) . '/public/item.php')) {
-            $public[] = '/item.php?id=' . self::$itemId;
-        }
 
         foreach ($public as $url) {
             $response = $this->http('GET', $url);
             self::assertSame(200, $response['status'], "$url must be open to customers.");
             self::assertNull($response['location'], "$url must not redirect.");
         }
+    }
+
+    // ---------------- item page ----------------
+
+    public function testItemPageShowsTheItemWithoutShelfCode(): void
+    {
+        $page = $this->http('GET', '/item.php?id=' . self::$archiveItemId);
+
+        self::assertSame(200, $page['status']);
+        self::assertStringContainsString('Access test archive item', $page['body']);
+        self::assertStringContainsString('Size M · Navy · Condition: Like new', $page['body']);
+        self::assertStringContainsString('€33.00', $page['body']);
+        self::assertStringContainsString('data-tryon', $page['body'], 'The try-on toggle is on the page.');
+        self::assertStringContainsString('id="tryon"', $page['body'], 'The try-on bar is on the page.');
+        self::assertStringNotContainsString(self::$archiveShelf, $page['body'], 'Customers never see the shelf code.');
+    }
+
+    public function testTakenOrUnknownItemGivesAFriendlyPage(): void
+    {
+        foreach (['/item.php?id=' . self::$itemId, '/item.php?id=999999999', '/item.php?id=abc', '/item.php'] as $url) {
+            $page = $this->http('GET', $url);
+            self::assertSame(404, $page['status'], $url);
+            self::assertNull($page['location'], "$url must not redirect.");
+            self::assertStringContainsString('This item has just been taken', $page['body'], $url);
+            self::assertStringContainsString('Back to the archive', $page['body'], $url);
+        }
+    }
+
+    public function testCardsLinkToTheItemPageWithTheFilters(): void
+    {
+        $archive = $this->http('GET', '/?size=M&colour=navy')['body'];
+        $link = 'href="/item.php?id=' . self::$archiveItemId . '&amp;size=M&amp;colour=navy"';
+
+        self::assertSame(2, substr_count($archive, $link), 'Photo and title both link to the item page, with the filters.');
+        self::assertStringContainsString('<template id="card-template">', $archive);
+        self::assertStringContainsString('class="card__link" href=""', $archive, 'The JS card template has the title link.');
+    }
+
+    public function testBackLinkKeepsValidFiltersOnly(): void
+    {
+        $page = $this->http('GET', '/item.php?id=' . self::$archiveItemId . '&size=M&colour=purple&max_price=25')['body'];
+        self::assertStringContainsString('href="/?size=M&amp;max_price=25.00">← Back to the archive', $page, 'The invalid colour is dropped.');
+
+        $plain = $this->http('GET', '/item.php?id=' . self::$archiveItemId)['body'];
+        self::assertStringContainsString('href="/">← Back to the archive', $plain);
     }
 
     public function testStaffScreenLinkOnlyForLoggedInStaff(): void

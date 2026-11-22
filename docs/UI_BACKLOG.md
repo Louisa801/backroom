@@ -22,6 +22,15 @@ The mockups show no staff header. The staff and manager screens have one row: "B
 
 The customer pages (archive and request status) have a small "Staff" link at the bottom right, linking to `/staff/login.php`. The mockups have no footer. It gives staff a way in from the shared tablet without typing a URL. It's muted so customers don't notice it, but still 16px, 7.3:1 contrast and a 44px tap target (CLAUDE.md UI rules). Staff pages don't show it.
 
+## Item detail (mockup `2-tryon.png`)
+
+Deviations in the build:
+
+1. **One photo, no thumbnails.** Each item has one photo (M5), so the row of small photos under the main photo is left out.
+2. **No "Your request" panel.** The request status has its own page (`/request.php`, M3), which the customer sees after sending the list. The detail page shows the try-on toggle and the try-on bar instead.
+3. **The category is added** to the details line ("Trousers · Size M · Navy · Condition: Good"), because SPEC lists it for this page.
+4. **The price is shown as €28.00,** the same as on the cards, not "€32" as in the mockup.
+5. **"← Back to the archive"** instead of "Back to results": it returns to the archive with the customer's filters.
 ## M4/M6: Fetch queue and fitting rooms (mockup `3-staff.png`)
 
 Deviations in the build:

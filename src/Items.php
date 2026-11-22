@@ -105,6 +105,42 @@ final class Items
         ], $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
+    /**
+     * One item for the customer detail page, only while it is in the archive.
+     * Requested, in a fitting room, sold or unknown: null. Never includes the shelf code.
+     *
+     * @return array{id: int, title: string, category: string, size: string, colour: string, condition: string, sale_price: string, photo_url: string}|null
+     */
+    public function findInArchive(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT i.id, i.title, c.name AS category, i.size, i.colour, i.condition, i.sale_price, i.photo_id, i.photo_path
+             FROM items i JOIN categories c ON c.id = i.category_id
+             WHERE i.id = :id AND i.status = 'in_archive'"
+        );
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            return null;
+        }
+        return [
+            'id'         => (int) $row['id'],
+            'title'      => $row['title'],
+            'category'   => $row['category'],
+            'size'       => $row['size'],
+            'colour'     => $row['colour'],
+            'condition'  => $row['condition'],
+            'sale_price' => $row['sale_price'],
+            'photo_url'  => self::photoUrl($row['photo_id'], $row['photo_path']),
+        ];
+    }
+
+    /** The query string of valid filters, e.g. "size=M&colour=navy" (for links that keep the filters). */
+    public static function filterQuery(array $filters): string
+    {
+        return http_build_query(array_intersect_key($filters, array_flip(['size', 'category', 'colour', 'max_price'])));
+    }
+
     /** URL of an item photo: uploaded photos come from the database, seed photos are static files. */
     public static function photoUrl(int|string|null $photoId, ?string $photoPath): string
     {
