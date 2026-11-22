@@ -50,6 +50,34 @@ test('customer: filter, open an item, try on 2 items, send to a fitting room', a
   await customerFlow(page);
 });
 
+// Bug fix: after choosing a room, the bar's "Send to fitting room" did nothing
+// (it only opened the already open room choice). Now it sends, like "Send request".
+async function sendWithTheBarButton(page) {
+  await page.goto('/?colour=navy');
+  await addCardToList(page, 'Quilted gilet');
+  await addCardToList(page, 'Striped Breton top');
+
+  const barSend = page.locator('#tryon-send');
+  await barSend.click();                                 // opens the room choice
+  await expect(page.getByLabel('Room 2')).toBeVisible();
+
+  // No room chosen yet: a clear message, nothing sent.
+  await barSend.click();
+  await expect(page.locator('#tryon-message')).toHaveText('Please choose a fitting room.');
+  await expect(page).toHaveURL(/\/\?colour=navy$/);
+
+  // Room chosen: the bar button sends the request.
+  await page.getByLabel('Room 2').check();
+  await barSend.click();
+  await expect(page).toHaveURL(/\/request\.php\?id=\d+$/);
+  await expect(page.locator('#request-room')).toHaveText('2');
+  await expect(page.locator('.request__item')).toHaveCount(2);
+}
+
+test('the bar button sends the request once a room is chosen', async ({ page }) => {
+  await sendWithTheBarButton(page);
+});
+
 test.describe('on a phone (375px)', () => {
   test.use({ viewport: { width: 375, height: 812 }, hasTouch: true, isMobile: true });
 
@@ -57,5 +85,9 @@ test.describe('on a phone (375px)', () => {
     await customerFlow(page);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
     expect(overflow).toBeLessThanOrEqual(0);
+  });
+
+  test('the bar button sends the request once a room is chosen (375px)', async ({ page }) => {
+    await sendWithTheBarButton(page);
   });
 });

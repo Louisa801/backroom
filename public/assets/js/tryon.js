@@ -235,6 +235,13 @@
   });
 
   sendButton.addEventListener('click', () => {
+    // The room choice is already open: this button sends, the same as "Send request"
+    // (which also says "Please choose a fitting room." when none is chosen, and is
+    // disabled while sending, so a second tap can't send twice).
+    if (!panel.hidden && !rooms.hidden) {
+      submit.click();
+      return;
+    }
     hideMessage();
     openPanel(true);
   });
